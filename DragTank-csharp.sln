@@ -5,6 +5,8 @@ Project("{51D27EF5-6669-F7B1-4971-B2C29110A79A}") = "dragTank", "Assembly-CSharp
 EndProject
 Project("{51D27EF5-6669-F7B1-4971-B2C29110A79A}") = "dragTank", "Assembly-CSharp-vs.csproj", "{A826CBBB-A64F-CEE4-F654-63CE7205EED6}"
 EndProject
+Project("{51D27EF5-6669-F7B1-4971-B2C29110A79A}") = "dragTank", "Assembly-CSharp-Editor-vs.csproj", "{3879D348-AB40-FC74-174D-8797FA50DDB4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,11 +21,15 @@ Global
 		{A826CBBB-A64F-CEE4-F654-63CE7205EED6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A826CBBB-A64F-CEE4-F654-63CE7205EED6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A826CBBB-A64F-CEE4-F654-63CE7205EED6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3879D348-AB40-FC74-174D-8797FA50DDB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3879D348-AB40-FC74-174D-8797FA50DDB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3879D348-AB40-FC74-174D-8797FA50DDB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3879D348-AB40-FC74-174D-8797FA50DDB4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-											GlobalSection(MonoDevelopProperties) = preSolution
+																				GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1
@@ -40,6 +46,10 @@ Global
 		$2.EventAddBraceStyle = NextLine
 		$2.EventRemoveBraceStyle = NextLine
 		$2.StatementBraceStyle = NextLine
+		$2.ElseNewLinePlacement = NewLine
+		$2.ElseIfNewLinePlacement = SameLine
+		$2.CatchNewLinePlacement = NewLine
+		$2.FinallyNewLinePlacement = NewLine
 		$2.ArrayInitializerBraceStyle = NextLine
 		$2.BeforeMethodDeclarationParentheses = False
 		$2.BeforeMethodCallParentheses = False
