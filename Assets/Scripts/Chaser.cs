@@ -5,9 +5,6 @@ using System.Linq;
 
 public class Chaser : MonoBehaviour
 {
-    //The player object to chase.
-    public GameObject player;
-
     //The AI's speed per second
     public float speed;
     
@@ -17,12 +14,17 @@ public class Chaser : MonoBehaviour
     //The max distance that the player may get away from the Chaser's current destination before the Chaser calculates a new path.
     public float recalculateDistance;
 
+    //The explosion to instantiate upon death / detonation.
+    public GameObject explosion;
+
+    //The amount of health the enemy has.
+    public float health;
+
+    private GameObject player;                  //The player object to chase.
     private Seeker seeker;
     private CharacterController controller;
-    //The chaser's current path
-    private Path current_path;
-    //The waypoint we are currently moving towards
-    private int currentWaypoint = 0;
+    private Path current_path;                  //The chaser's current path
+    private int currentWaypoint = 0;            //The waypoint we are currently moving towards
     private Vector3 current_path_destination;
     private GameManager gameManager;
     
@@ -33,6 +35,7 @@ public class Chaser : MonoBehaviour
 
     public void Start()
     {
+        player = GameObject.FindGameObjectWithTag("Player");
         seeker = GetComponent<Seeker>();
         controller = GetComponent<CharacterController>();
 
@@ -92,9 +95,25 @@ public class Chaser : MonoBehaviour
     {
         if (hit.gameObject.tag == "Player")
         {
-            Destroy(gameObject);
-            iTween.PunchPosition(Camera.main.gameObject, Vector3.left, 1.0f);
+            die();
         }
+    }
+
+    void TakeDamage(float damage)
+    {
+        health -= damage;
+
+        if (health <= 0)
+        {
+            die();
+        }
+    }
+
+    private void die()
+    {
+        Instantiate(explosion, transform.position, Quaternion.Euler(90f, 0f, 0f));
+        Destroy(gameObject);
+        iTween.PunchPosition(Camera.main.gameObject, Vector3.left, 1.0f);
     }
 
 } 
