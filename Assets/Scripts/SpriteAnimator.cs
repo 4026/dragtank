@@ -13,7 +13,7 @@ public class SpriteAnimator : MonoBehaviour
 
     void Start()
     {
-        spriteRenderer = renderer as SpriteRenderer;
+        spriteRenderer = GetComponent<Renderer>() as SpriteRenderer;
         start_time = Time.timeSinceLevelLoad;
     }
 
