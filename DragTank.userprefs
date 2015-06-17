@@ -1,11 +1,11 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\CameraController.cs">
+  <MonoDevelop.Ide.Workspace />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\LevelGenerator.cs">
     <Files>
-      <File FileName="Assets\Scripts\CameraController.cs" Line="24" Column="106" />
-      <File FileName="..\LD30\Assets\Scripts\PlayerController.cs" Line="28" Column="1" />
-      <File FileName="Assets\Scripts\GameManager.cs" Line="3" Column="22" />
-      <File FileName="Assets\Scripts\PlayerController.cs" Line="53" Column="6" />
+      <File FileName="Assets\Scripts\InputController.cs" Line="35" Column="10" />
+      <File FileName="Assets\Scripts\LevelGenerator.cs" Line="76" Column="164" />
+      <File FileName="Assets\Scripts\IntVector2.cs" Line="2" Column="1" />
+      <File FileName="Assets\Scripts\TurretController.cs" Line="27" Column="56" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
