@@ -3,18 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class TurretController : MonoBehaviour
+public class TurretController : Turret
 {
 
     public GameObject player;
-    public float turnSpeed;
-    public GameObject bulletPrefab;
-    public float bulletSpeed;
     public GameObject targetPrefab;
 
     private List<GameObject> targets = new List<GameObject>();
     private GameObject dragged_target;
-    private bool animating = false;
     private GameObject current_target;
     private bool is_dragging = false;
     private GameManager gameManager;
@@ -57,6 +53,9 @@ public class TurretController : MonoBehaviour
                 if (turnToward(target.transform.position) && targets.Count > 0)
                 {
                     fireAt(target);
+                    //Remove target indicator
+                    targets.Remove(target);
+                    GameObject.Destroy(target);
                 }
             }
             else
@@ -109,57 +108,4 @@ public class TurretController : MonoBehaviour
         targets.Add(current_target);
     }
 
-
-    /// <summary>
-    /// Makes the turret rotate to point at the specified position.
-    /// </summary>
-    /// <returns><c>true</c>, if turret is pointing at the position after the rotation, <c>false</c> otherwise.</returns>
-    /// <param name="position">Position.</param>
-    private bool turnToward(Vector3 target_position)
-    {
-        Vector3 target_from_self = target_position - transform.position;
-        float bearing = Vector3.Angle(transform.up, target_from_self);
-        
-        //Create the rotation we need to be in to look at the target
-        Quaternion lookRotation = Quaternion.LookRotation(target_from_self.normalized, Vector3.up) * Quaternion.Euler(90, 0, 0);
-        
-        if (Mathf.Abs(bearing) < Time.deltaTime * turnSpeed)
-        {
-            transform.rotation = lookRotation;
-            return true;
-        }
-        else
-        {
-            //Rotate over time according to speed until we are in the required rotation.
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * (turnSpeed / bearing));
-            return false;
-        }
-    }
-
-    private void fireAt(GameObject target)
-    {
-        //Spawn bullet
-        GameObject new_bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity) as GameObject;
-        new_bullet.GetComponent<BulletController>().target = target.transform.position;
-        new_bullet.GetComponent<BulletController>().speed = bulletSpeed;
-
-        //Animate recoil
-        animating = true;
-        Vector3 recoil_pos = Vector3.down;
-        Hashtable itween_options = iTween.Hash(
-            "amount", recoil_pos,
-            "time", 0.5f,
-            "oncomplete", "animationEnd"
-        );
-        iTween.PunchPosition(this.gameObject, itween_options);
-
-        //Remove target indicator
-        targets.Remove(target);
-        GameObject.Destroy(target);
-    }
-
-    public void animationEnd()
-    {
-        animating = false;
-    }
 }
