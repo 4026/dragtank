@@ -56,11 +56,11 @@ public class EnemyTankController : Tank
 
 		//Set state
 		if (turret.IsPlayerInVision ()) {
-			Debug.Log ("There they are! Get them!");
+			//"There they are! Get them!"
 			lastKnownPlayerPos = player.transform.position;
 			setAIState (AIState.Attacking);
 		} else if (currentAIState != AIState.Dormant) {
-			Debug.Log ("We've lost them! Get after them!");
+			//"We've lost them! Get after them!"
 			setAIState (AIState.Chasing);
 		}
 
