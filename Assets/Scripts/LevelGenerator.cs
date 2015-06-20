@@ -8,7 +8,7 @@ public class LevelGenerator : MonoBehaviour
 	public Vector2 Dimensions;
 	public float TileSize;
 	public GameObject Wall;
-    public GameObject WallParent;
+	public GameObject WallParent;
 
 	private bool[,] map_data;
 	private int map_width;
@@ -125,10 +125,10 @@ public class LevelGenerator : MonoBehaviour
 		for (int x = 0; x < map_width; ++x) {
 			for (int y = 0; y < map_height; ++y) {
 				if (map_data [x, y]) {
-                    Vector3 new_wall_pos = new Vector3 (TopLeftPosition.x + TileSize * x, 0, TopLeftPosition.y + TileSize * y);
-                    Quaternion new_wall_rot = Quaternion.Euler (new Vector3 (90, 0, 0));
-                    GameObject new_wall = Instantiate (Wall, new_wall_pos, new_wall_rot) as GameObject;
-                    new_wall.transform.parent = WallParent.transform;
+					Vector3 new_wall_pos = new Vector3 (TopLeftPosition.x + TileSize * (x + 0.5f), 0, TopLeftPosition.y + TileSize * (y + 0.5f));
+					Quaternion new_wall_rot = Quaternion.Euler (new Vector3 (90, 0, 0));
+					GameObject new_wall = Instantiate (Wall, new_wall_pos, new_wall_rot) as GameObject;
+					new_wall.transform.parent = WallParent.transform;
 				}
 			}
 		}
