@@ -16,7 +16,7 @@ public class GUIController : MonoBehaviour
 	{
 		switch (gameManager.gameState) {
 		case GameState.Planning:
-			if (path_planner.dragged_path.Count > 0) {
+			if (path_planner.Path.Length > 0) {
 				int button_width = (int)Mathf.Min (Screen.width, Screen.height) / 10;
 				if (GUI.Button (new Rect (20, 20, button_width, button_width), "Go")) {
 					gameManager.SetGameState (GameState.MoveCountdown);

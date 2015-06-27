@@ -117,7 +117,10 @@ public class EnemyTankController : Tank
 			seeker.StartPath (transform.position, lastKnownPlayerPos, OnPathComplete);
 			break;
 		}
+	}
 
+	public void TakeDamage (float damage)
+	{
 
 	}
 }

@@ -9,27 +9,25 @@ public class CameraController : MonoBehaviour
 	public float MoveCountdownDuration;
 	public float DragMomentumFriction;
 
+	public bool IsMomentumApplied { get; set; }
+	public bool RotationFollowsTarget { get; set; }
+
 	private GameManager gameManager;
-	private bool isDragging;
-	private Vector3 dragOrigin;
 	private Vector3 dragMomentum;
-	
+
 	void Awake ()
 	{
 		gameManager = GameManager.Instance;
 		gameManager.NotifyStateChange += OnStateChange;
 		OnStateChange (gameManager.gameState, gameManager.gameState);
 
-		InputController.NotifyStartDrag += StartDrag;
-		InputController.NotifyDragUpdate += UpdateDrag;
-		InputController.NotifyStopDrag += EndDrag;
+		RotationFollowsTarget = true;
+		IsMomentumApplied = true;
 	}
 	
 	void OnDestroy ()
 	{
-		InputController.NotifyStartDrag -= StartDrag;
-		InputController.NotifyDragUpdate -= UpdateDrag;
-		InputController.NotifyStopDrag -= EndDrag;
+		gameManager.NotifyStateChange -= OnStateChange;
 	}
 		
 	void Update ()
@@ -39,18 +37,17 @@ public class CameraController : MonoBehaviour
 			//Determine where camera should focus.
 			transform.position = new Vector3 (Target.transform.position.x, transform.position.y, Target.transform.position.z);
 
-			if (!isDragging) {
+			if (RotationFollowsTarget) {
 				iTween.RotateUpdate (gameObject, Target.transform.rotation.eulerAngles, 2.0f);
 			}
 			break;
 
 		case GameState.Planning:
-			if (!isDragging) {
-				if (dragMomentum.magnitude > 0) {
-					dragMomentum = iTween.Vector3Update (dragMomentum, Vector3.zero, DragMomentumFriction);
+			if (dragMomentum.magnitude > 0) {
+				dragMomentum = iTween.Vector3Update (dragMomentum, Vector3.zero, DragMomentumFriction);
+				if (IsMomentumApplied) {
 					transform.position += dragMomentum;
 				}
-
 			}
 			break;
 		}
@@ -62,6 +59,8 @@ public class CameraController : MonoBehaviour
 
 		switch (new_state) {
 		case GameState.MoveCountdown:
+			Vector3 targetPosition = new Vector3 (Target.transform.position.x, transform.position.y, Target.transform.position.z);
+			iTween.MoveTo (gameObject, targetPosition, MoveCountdownDuration);
 			iTween.RotateTo (gameObject, Target.transform.rotation.eulerAngles, MoveCountdownDuration);
 			tweenOptions = iTween.Hash (
 				"from", Camera.main.orthographicSize, 
@@ -100,27 +99,9 @@ public class CameraController : MonoBehaviour
 		gameManager.SetGameState (GameState.Moving);
 	}
 
-	void StartDrag (Vector2 screen_pos)
+	public void Pan (Vector3 direction)
 	{
-		isDragging = true;
-
-		if (gameManager.gameState == GameState.Planning) {
-			dragOrigin = Camera.main.ScreenToWorldPoint (new Vector3 (screen_pos.x, screen_pos.y, Camera.main.transform.position.y));
-		}
-	}
-	
-	void UpdateDrag (Vector2 screen_pos)
-	{
-		if (gameManager.gameState == GameState.Planning) {
-			Vector3 newDragWorldPos = Camera.main.ScreenToWorldPoint (new Vector3 (screen_pos.x, screen_pos.y, Camera.main.transform.position.y));
-			Vector3 dragDirection = newDragWorldPos - dragOrigin;
-			transform.position -= dragDirection;
-			dragMomentum = -dragDirection;
-		}
-	}
-	
-	void EndDrag (Vector2 screen_pos)
-	{
-		isDragging = false;
+		transform.position += direction;
+		dragMomentum = direction;
 	}
 }

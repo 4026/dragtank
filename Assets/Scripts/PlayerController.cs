@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.EventSystems;
 
-public class PlayerController : Tank
+public class PlayerController : Tank, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
 	public PathPlanner pathPlanner;
 	public float NextWaypointDistance;
@@ -22,6 +23,11 @@ public class PlayerController : Tank
 		trail_fade_time = GetComponentInChildren<TrailRenderer> ().time;
 	}
 
+	void OnDestroy ()
+	{
+		gameManager.NotifyStateChange -= OnStateChange;
+	}
+
 	void Update ()
 	{
 		if (gameManager.gameState != GameState.Moving) {
@@ -30,7 +36,7 @@ public class PlayerController : Tank
 
 		//If we've run out of path, stop.
 		if (currentWaypoint >= currentPath.Length) {
-			pathPlanner.dragged_path.Clear ();
+			pathPlanner.ClearWaypoints ();
 			gameManager.SetGameState (GameState.Planning);
 			return;
 		}
@@ -48,24 +54,79 @@ public class PlayerController : Tank
 		}
 	}
 
-	void OnDestroy ()
-	{
-		gameManager.NotifyStateChange -= OnStateChange;
-	}
-
 	void OnStateChange (GameState old_state, GameState new_state)
 	{
 		switch (new_state) {
 		case GameState.Moving:
 			GetComponentInChildren<TrailRenderer> ().time = trail_fade_time; //Resume trail renderer fade-out
-			currentPath = pathPlanner.dragged_path.ToArray ();
-			currentWaypoint = 0;
+			currentPath = pathPlanner.Path;
+			currentWaypoint = 1;
 			break;
 
 
 		case GameState.Planning:
 			GetComponentInChildren<TrailRenderer> ().time = Mathf.Infinity; //Pause trail renderer fade-out
 			break;
+		}
+	}
+
+	public void OnBeginDrag (PointerEventData eventData)
+	{
+		if (gameManager.gameState != GameState.Planning) {
+			return;
+		}
+		
+		pathPlanner.ClearWaypoints ();
+		pathPlanner.AddWaypoint (transform.position);
+	}
+	
+	public void OnDrag (PointerEventData eventData)
+	{
+		if (gameManager.gameState != GameState.Planning) {
+			return;
+		}
+		
+		Vector3 current_world_pos = Camera.main.ScreenToWorldPoint (new Vector3 (eventData.position.x, eventData.position.y, Camera.main.transform.position.y));
+		Vector3 last_world_pos = pathPlanner.GetLastPoint ();
+		Vector3 difference = current_world_pos - last_world_pos;
+		
+		RaycastHit hit_info;
+		LayerMask layer_mask = LayerMask.GetMask ("Walls");
+		if (Physics.SphereCast ((last_world_pos), 0.75f, difference, out hit_info, difference.magnitude, layer_mask)) {
+			//Paths that intersect walls should turn red and not extend.
+			/*rendered_path.SetColors (path_color, invalid_path_color);
+			rendered_path.SetVertexCount (dragged_path.Count + 1);
+			rendered_path.SetPosition (dragged_path.Count, world_pos + player_offset);*/
+		} else if (difference.magnitude < 1) {
+			//A short distance isn't enough to set a new waypoint
+			/*rendered_path.SetColors (path_color, path_color);
+			rendered_path.SetVertexCount (dragged_path.Count + 1);
+			rendered_path.SetPosition (dragged_path.Count, world_pos + player_offset);*/
+		} else {
+			//A long enough distance registers a new waypoint.
+			pathPlanner.AddWaypoint (current_world_pos);
+		}
+	}
+	
+	public void OnEndDrag (PointerEventData eventData)
+	{
+		if (gameManager.gameState != GameState.Planning) {
+			return;
+		}
+		
+		Vector3 current_world_pos = Camera.main.ScreenToWorldPoint (new Vector3 (eventData.position.x, eventData.position.y, Camera.main.transform.position.y));
+		Vector3 last_world_pos = pathPlanner.GetLastPoint ();
+		Vector3 difference = current_world_pos - last_world_pos;
+		
+		RaycastHit hit_info;
+		LayerMask layer_mask = LayerMask.GetMask ("Walls");
+		if (Physics.SphereCast (last_world_pos, 0.75f, difference, out hit_info, difference.magnitude, layer_mask)) {
+			//If the final point leads the path through a wall, ignore it and remove it from the renderer.
+			/*rendered_path.SetColors (path_color, path_color);
+			rendered_path.SetVertexCount (dragged_path.Count);*/
+		} else {
+			//Otherwise, add it to the path.
+			pathPlanner.AddWaypoint (current_world_pos);
 		}
 	}
 }
