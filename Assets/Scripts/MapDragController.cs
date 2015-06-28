@@ -29,7 +29,10 @@ public class MapDragController : MonoBehaviour, IBeginDragHandler, IDragHandler,
 	public void Update ()
 	{
 		if (Input.touchCount != 2 || gameManager.gameState != GameState.Planning) {
-			isPinching = false;
+			if (isPinching) {
+				isPinching = false;
+				ControlledCamera.IsMomentumApplied = true;
+			}
 		} else {
 			// If there are two touches on the device...
 			Touch touchZero = Input.GetTouch (0);
@@ -37,6 +40,8 @@ public class MapDragController : MonoBehaviour, IBeginDragHandler, IDragHandler,
 
 			if (!isPinching) {
 				isPinching = true;
+				ControlledCamera.IsMomentumApplied = false;
+
 				//Get the starting distance between the two touches in screen co-ordinates.
 				startingPinchScreenDistance = Vector2.Distance (touchZero.position, touchOne.position);
 
@@ -53,15 +58,10 @@ public class MapDragController : MonoBehaviour, IBeginDragHandler, IDragHandler,
 			// Find the ratio of the starting pinch distance to the current pinch distance.
 			float invDistanceMultiplier = startingPinchScreenDistance / pinchScreenDistance;
 
-			// ... change the orthographic size based on the change in distance between the touches.
+			// Change the orthographic size based on the change in distance between the touches.
 			Camera.main.orthographicSize = Mathf.Clamp (cameraSizeOrigin * invDistanceMultiplier, MinZoom, MaxZoom);
 
-			//Calculate how to pan the camera to maintain the pinch center whilst zooming.
-			Vector3 zoomPanDirection = pinchWorldCenter - cameraPosOrigin;
-			Vector3 zoomPan = (1 - invDistanceMultiplier) * zoomPanDirection;
-			Camera.main.transform.position = cameraPosOrigin + zoomPan;
-
-			//Get the world positions of the two touches after zooming and applying zoom pan.
+			//Get the world positions of the two touches after zooming.
 			Vector3 touchZeroWorldPos = ControlledCamera.screenToGroundPoint (touchZero.position);
 			Vector3 touchOneWorldPos = ControlledCamera.screenToGroundPoint (touchOne.position);
 
@@ -69,7 +69,7 @@ public class MapDragController : MonoBehaviour, IBeginDragHandler, IDragHandler,
 			Vector3 newPinchCenter = Vector3.Lerp (touchZeroWorldPos, touchOneWorldPos, 0.5f);
 
 			// Pan the camera to compensate for any movement of the pinch center.
-			Camera.main.transform.position += (pinchWorldCenter - newPinchCenter);
+			ControlledCamera.Pan (pinchWorldCenter - newPinchCenter);
 		}
 	}
 	
@@ -109,7 +109,9 @@ public class MapDragController : MonoBehaviour, IBeginDragHandler, IDragHandler,
 	
 	public void OnEndDrag (PointerEventData eventData)
 	{
-		ControlledCamera.IsMomentumApplied = true;
-		ControlledCamera.RotationFollowsTarget = true;
+		if (dragIsSingleTouch) {
+			ControlledCamera.IsMomentumApplied = true;
+			ControlledCamera.RotationFollowsTarget = true;
+		}
 	}
 }

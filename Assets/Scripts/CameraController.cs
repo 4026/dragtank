@@ -9,7 +9,17 @@ public class CameraController : MonoBehaviour
 	public float MoveCountdownDuration;
 	public float DragMomentumFriction;
 
-	public bool IsMomentumApplied { get; set; }
+	private int momentumLocks = 0;
+	public bool IsMomentumApplied { 
+		get { return momentumLocks == 0; } 
+		set { 
+			if (!value) {
+				++momentumLocks;
+			} else {
+				momentumLocks = Mathf.Max (0, momentumLocks - 1);
+			}
+		}
+	}
 	public bool RotationFollowsTarget { get; set; }
 
 	private GameManager gameManager;
