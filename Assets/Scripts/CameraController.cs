@@ -104,4 +104,14 @@ public class CameraController : MonoBehaviour
 		transform.position += direction;
 		dragMomentum = direction;
 	}
+
+	public void SetZoom ()
+	{
+
+	}
+
+	public Vector3 screenToGroundPoint (Vector2 screen_pos)
+	{
+		return Camera.main.ScreenToWorldPoint (new Vector3 (screen_pos.x, screen_pos.y, Camera.main.transform.position.y));
+	}
 }
