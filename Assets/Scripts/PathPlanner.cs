@@ -14,7 +14,6 @@ public class PathPlanner : MonoBehaviour
 	private static Color path_color = new Color (1f, 1f, 1f, 0.5f);
 	private static Color invalid_path_color = new Color (1f, 0f, 0f, 0.5f);
 	private GameManager gameManager;
-	private bool is_dragging = false;
 	private int next_path_point; //Which point on the path is the next one the tank is driving to.
 	private Vector3 render_offset; //Vector describing the offset of points on the rendered path from points on the path the player will actually drive.
     
@@ -82,5 +81,18 @@ public class PathPlanner : MonoBehaviour
 	public Vector3 GetLastPoint ()
 	{
 		return dragged_path.Last ();
+	}
+
+	public void UpdateFinalRenderPoint (Vector3 point, bool isValid = true)
+	{
+		rendered_path.SetColors (path_color, isValid ? path_color : invalid_path_color);
+		rendered_path.SetVertexCount (dragged_path.Count + 1);
+		rendered_path.SetPosition (dragged_path.Count, point + render_offset);
+	}
+
+	public void ClearFinalRenderPoint ()
+	{
+		rendered_path.SetColors (path_color, path_color);
+		rendered_path.SetVertexCount (dragged_path.Count);
 	}
 }

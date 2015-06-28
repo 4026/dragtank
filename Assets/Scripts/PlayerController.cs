@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.EventSystems;
+using Pathfinding;
 
 public class PlayerController : Tank, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
@@ -11,6 +12,7 @@ public class PlayerController : Tank, IBeginDragHandler, IDragHandler, IEndDragH
 	private float trail_fade_time;
 	private Vector3[] currentPath;
 	private int currentWaypoint;
+	private Seeker seeker;
     
 	void Awake ()
 	{
@@ -21,6 +23,7 @@ public class PlayerController : Tank, IBeginDragHandler, IDragHandler, IEndDragH
 	void Start ()
 	{
 		trail_fade_time = GetComponentInChildren<TrailRenderer> ().time;
+		seeker = GetComponent<Seeker> ();
 	}
 
 	void OnDestroy ()
@@ -92,16 +95,20 @@ public class PlayerController : Tank, IBeginDragHandler, IDragHandler, IEndDragH
 		
 		RaycastHit hit_info;
 		LayerMask layer_mask = LayerMask.GetMask ("Walls");
-		if (Physics.SphereCast ((last_world_pos), 0.75f, difference, out hit_info, difference.magnitude, layer_mask)) {
-			//Paths that intersect walls should turn red and not extend.
-			/*rendered_path.SetColors (path_color, invalid_path_color);
-			rendered_path.SetVertexCount (dragged_path.Count + 1);
-			rendered_path.SetPosition (dragged_path.Count, world_pos + player_offset);*/
+
+		if (Physics.CheckSphere (current_world_pos, 0.75f, layer_mask)) {
+			//Endpoints inside walls should turn red and not extend the path.
+			pathPlanner.UpdateFinalRenderPoint (current_world_pos, false);
+		} else if (Physics.SphereCast ((last_world_pos), 0.75f, difference, out hit_info, difference.magnitude, layer_mask)) {
+			//Paths that intersect walls but finish in a valid location should be corrected with pathfinding.
+
+			pathPlanner.UpdateFinalRenderPoint (current_world_pos, false); // While we're pathfinding, show the point as invalid.
+			if (seeker.IsDone ()) {
+				seeker.StartPath (last_world_pos, current_world_pos, OnPathComplete);
+			}
 		} else if (difference.magnitude < 1) {
 			//A short distance isn't enough to set a new waypoint
-			/*rendered_path.SetColors (path_color, path_color);
-			rendered_path.SetVertexCount (dragged_path.Count + 1);
-			rendered_path.SetPosition (dragged_path.Count, world_pos + player_offset);*/
+			pathPlanner.UpdateFinalRenderPoint (current_world_pos);
 		} else {
 			//A long enough distance registers a new waypoint.
 			pathPlanner.AddWaypoint (current_world_pos);
@@ -122,11 +129,22 @@ public class PlayerController : Tank, IBeginDragHandler, IDragHandler, IEndDragH
 		LayerMask layer_mask = LayerMask.GetMask ("Walls");
 		if (Physics.SphereCast (last_world_pos, 0.75f, difference, out hit_info, difference.magnitude, layer_mask)) {
 			//If the final point leads the path through a wall, ignore it and remove it from the renderer.
-			/*rendered_path.SetColors (path_color, path_color);
-			rendered_path.SetVertexCount (dragged_path.Count);*/
+			pathPlanner.ClearFinalRenderPoint ();
 		} else {
 			//Otherwise, add it to the path.
 			pathPlanner.AddWaypoint (current_world_pos);
+		}
+	}
+
+	public void OnPathComplete (Path path)
+	{
+		if (path.error) {
+			Debug.Log ("Path error: " + path.errorLog);
+			return;
+		}
+		
+		foreach (Vector3 waypoint in path.vectorPath) {
+			pathPlanner.AddWaypoint (waypoint);
 		}
 	}
 }
