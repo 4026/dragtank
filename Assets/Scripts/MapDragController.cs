@@ -6,8 +6,8 @@ using UnityEngine.EventSystems;
 public class MapDragController : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
 	public CameraController ControlledCamera;
-	public float MinZoom = 3;        // The rate of change of the field of view in perspective mode.
-	public float MaxZoom = 30;        // The rate of change of the orthographic size in orthographic mode.
+	public float MinY = 3;        // The rate of change of the field of view in perspective mode.
+	public float MaxY = 30;        // The rate of change of the orthographic size in orthographic mode.
 
 	private GameManager gameManager;
 
@@ -58,8 +58,8 @@ public class MapDragController : MonoBehaviour, IBeginDragHandler, IDragHandler,
 			// Find the ratio of the starting pinch distance to the current pinch distance.
 			float invDistanceMultiplier = startingPinchScreenDistance / pinchScreenDistance;
 
-			// Change the orthographic size based on the change in distance between the touches.
-			Camera.main.orthographicSize = Mathf.Clamp (cameraSizeOrigin * invDistanceMultiplier, MinZoom, MaxZoom);
+            // Change the orthographic size based on the change in distance between the touches.
+            ControlledCamera.SetY(Mathf.Clamp (cameraPosOrigin.y * invDistanceMultiplier, MinY, MaxY));
 
 			//Get the world positions of the two touches after zooming.
 			Vector3 touchZeroWorldPos = ControlledCamera.screenToGroundPoint (touchZero.position);

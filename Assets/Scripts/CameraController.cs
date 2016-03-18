@@ -4,8 +4,8 @@ using System.Collections;
 public class CameraController : MonoBehaviour
 {
 	public GameObject Target;
-	public float PlanningZoom;
-	public float MovementZoom;
+    public float PlanningY;
+    public float MovementY;
 	public float MoveCountdownDuration;
 	public float DragMomentumFriction;
 
@@ -65,42 +65,28 @@ public class CameraController : MonoBehaviour
 
 	void OnStateChange (GameState old_state, GameState new_state)
 	{
-		Hashtable tweenOptions;
+        //Animate camera into position for state.
+        Vector3 targetPosition;
 
-		switch (new_state) {
+        switch (new_state) {
 		case GameState.MoveCountdown:
-			Vector3 targetPosition = new Vector3 (Target.transform.position.x, transform.position.y, Target.transform.position.z);
-			iTween.MoveTo (gameObject, targetPosition, MoveCountdownDuration);
-			iTween.RotateTo (gameObject, Target.transform.rotation.eulerAngles, MoveCountdownDuration);
-			tweenOptions = iTween.Hash (
-				"from", Camera.main.orthographicSize, 
-				"to", MovementZoom,
-				"time", MoveCountdownDuration,
-				"onupdate", "SetZoom",
-				"oncomplete", "MoveComplete"
-			);
-			iTween.ValueTo (gameObject, tweenOptions);
-
-			break;
+			targetPosition = new Vector3 (Target.transform.position.x, MovementY, Target.transform.position.z);
+            Hashtable tweenOptions = iTween.Hash(
+                "position", targetPosition,
+                "time", MoveCountdownDuration,
+                "oncomplete", "MoveComplete"
+            );
+            iTween.MoveTo(gameObject, tweenOptions);
+            iTween.RotateTo(gameObject, Target.transform.rotation.eulerAngles, MoveCountdownDuration);
+            break;
 			
 			
 		case GameState.Planning:
-			iTween.RotateTo (gameObject, new Vector3 (90, 0, 0), MoveCountdownDuration);
-			tweenOptions = iTween.Hash (
-				"from", Camera.main.orthographicSize, 
-				"to", PlanningZoom,
-				"time", MoveCountdownDuration,
-				"onupdate", "SetZoom"
-			);
-			iTween.ValueTo (gameObject, tweenOptions);
-
+            targetPosition = new Vector3(Target.transform.position.x, PlanningY, Target.transform.position.z);
+            iTween.RotateTo (gameObject, new Vector3 (90, 0, 0), MoveCountdownDuration);
+            iTween.MoveTo(gameObject, targetPosition, MoveCountdownDuration);          
 			break;
 		}
-	}
-
-	public void SetZoom (float newZoom)
-	{
-		Camera.main.orthographicSize = newZoom;
 	}
 
 	//Called when the camera is in position.
@@ -109,15 +95,15 @@ public class CameraController : MonoBehaviour
 		gameManager.SetGameState (GameState.Moving);
 	}
 
-	public void Pan (Vector3 direction)
+    public void SetY(float new_y)
+    {
+        transform.position = new Vector3(transform.position.x, new_y, transform.position.z);
+    }
+
+    public void Pan (Vector3 direction)
 	{
 		transform.position += direction;
 		dragMomentum = direction;
-	}
-
-	public void SetZoom ()
-	{
-
 	}
 
 	public Vector3 screenToGroundPoint (Vector2 screen_pos)
