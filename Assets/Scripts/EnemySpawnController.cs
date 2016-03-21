@@ -3,10 +3,16 @@ using System.Collections;
 
 public class EnemySpawnController : MonoBehaviour
 {
+    [System.Serializable]
+    public struct SpawnSpecification
+    {
+        public GameObject EnemyType;
+        public int MaxToSpawn;
+    }
 
-	public GameObject[] enemyTypes;
-	public int[] maxEnemiesOfType;
-	public float spawnPeriod;
+    public SpawnSpecification[] SpawnSpecifications;
+
+    public float spawnPeriod;
 	public float spawnDistance;
 
 	private GameObject player;
@@ -37,22 +43,22 @@ public class EnemySpawnController : MonoBehaviour
 	void OnStateChange (GameState old_state, GameState new_state)
 	{
 		if (new_state == GameState.Moving) {
-			StartCoroutine ("SpawnEnemies");
+			StartCoroutine (SpawnEnemies());
 		} else if (old_state == GameState.Moving) {
-			StopCoroutine ("SpawnEnemies");
+			StopCoroutine (SpawnEnemies());
 		}
 	}
 
 	IEnumerator SpawnEnemies ()
 	{
 		while (true) {
-			for (int i = 0; i < enemyTypes.Length; ++i) {
-
-				GameObject[] existingEnemies = GameObject.FindGameObjectsWithTag (enemyTypes [i].tag);
-				if (existingEnemies.Length < maxEnemiesOfType [i]) {
+			foreach (SpawnSpecification spawn_specification in SpawnSpecifications)
+            {
+				GameObject[] existingEnemies = GameObject.FindGameObjectsWithTag (spawn_specification.EnemyType.tag);
+				if (existingEnemies.Length < spawn_specification.MaxToSpawn) {
 					try {
 						Vector3 spawn_pos = getSpawnLocation ();
-						Instantiate (enemyTypes [i], spawn_pos, Quaternion.identity);
+						Instantiate (spawn_specification.EnemyType, spawn_pos, Quaternion.identity);
 					} catch (SpawnLocationException) {
 						Debug.LogWarning ("Failed to find enemy spawn location.");
 					}
