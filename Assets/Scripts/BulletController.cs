@@ -76,8 +76,8 @@ public class BulletController : MonoBehaviour
 		LayerMask layer_mask = LayerMask.GetMask ("Enemies");
 		Collider[] hit_colliders = Physics.OverlapSphere (transform.position, splashRadius, layer_mask);
 		for (int i = 0; i < hit_colliders.Length; ++i) {
-			GameObject hit_object = hit_colliders [i].gameObject;
-			hit_object.SendMessage ("TakeDamage", damage);
+			Destructible hit_object = hit_colliders [i].gameObject.GetComponent<Destructible>();
+			hit_object.TakeDamage(damage, transform.position);
 
 		}
 

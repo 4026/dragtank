@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using Pathfinding;
 using System.Linq;
 
@@ -13,12 +12,6 @@ public class Chaser : MonoBehaviour
 
 	//The max distance that the player may get away from the Chaser's current destination before the Chaser calculates a new path.
 	public float recalculateDistance;
-
-	//The explosion to instantiate upon death / detonation.
-	public GameObject explosion;
-
-	//The amount of health the enemy has.
-	public float health;
 
 	private GameObject player;                  //The player object to chase.
 	private Seeker seeker;
@@ -101,24 +94,10 @@ public class Chaser : MonoBehaviour
 	public void OnControllerColliderHit (ControllerColliderHit hit)
 	{
 		if (hit.gameObject.tag == "Player") {
-			die ();
+            //Self destruct on collision with player...
+            Destructible destructible = gameObject.GetComponent<Destructible>();
+            destructible.TakeDamage(destructible.StartingHealth, transform.position);
 		}
-	}
-
-	void TakeDamage (float damage)
-	{
-		health -= damage;
-
-		if (health <= 0) {
-			die ();
-		}
-	}
-
-	private void die ()
-	{
-		Instantiate (explosion, transform.position, Quaternion.Euler (90f, 0f, 0f));
-		Destroy (gameObject);
-		iTween.PunchPosition (Camera.main.gameObject, Vector3.left, 1.0f);
 	}
 
 } 
