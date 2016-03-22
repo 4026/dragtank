@@ -67,25 +67,48 @@ public class CameraController : MonoBehaviour
 	{
         //Animate camera into position for state.
         Vector3 targetPosition;
+        Hashtable tween_options;
 
         switch (new_state) {
-		case GameState.MoveCountdown:
-			targetPosition = new Vector3 (Target.transform.position.x, MovementY, Target.transform.position.z);
-            Hashtable tweenOptions = iTween.Hash(
-                "position", targetPosition,
-                "time", MoveCountdownDuration,
-                "oncomplete", "MoveComplete"
-            );
-            iTween.MoveTo(gameObject, tweenOptions);
-            iTween.RotateTo(gameObject, Target.transform.rotation.eulerAngles, MoveCountdownDuration);
-            break;
+		    case GameState.MoveCountdown:
+                targetPosition = new Vector3 (Target.transform.position.x, MovementY, Target.transform.position.z);
+
+                tween_options = iTween.Hash(
+                    "position", targetPosition,
+                    "time", MoveCountdownDuration,
+                    "oncomplete", "MoveComplete",
+                    "easetype", iTween.EaseType.easeInOutQuad
+                );
+                iTween.MoveTo(gameObject, tween_options);
+
+                tween_options = iTween.Hash(
+                    "rotation", Target.transform.rotation.eulerAngles,
+                    "time", MoveCountdownDuration,
+                    "easetype", iTween.EaseType.easeInOutQuad
+                );
+                iTween.RotateTo(gameObject, tween_options);
+                break;
 			
 			
-		case GameState.Planning:
-            targetPosition = new Vector3(Target.transform.position.x, PlanningY, Target.transform.position.z);
-            iTween.RotateTo (gameObject, new Vector3 (90, 0, 0), MoveCountdownDuration);
-            iTween.MoveTo(gameObject, targetPosition, MoveCountdownDuration);          
-			break;
+		    case GameState.Planning:
+                targetPosition = new Vector3(Target.transform.position.x, PlanningY, Target.transform.position.z);
+
+                tween_options = iTween.Hash(
+                    "position", targetPosition,
+                    "time", MoveCountdownDuration,
+                    "easetype", iTween.EaseType.easeInOutQuad
+                );
+                iTween.MoveTo(gameObject, tween_options);
+
+                tween_options = iTween.Hash(
+                    "rotation", new Vector3(90, 0, 0),
+                    "time", MoveCountdownDuration,
+                    "easetype", iTween.EaseType.easeInOutQuad
+                );
+                iTween.RotateTo (gameObject, tween_options);
+
+                       
+			    break;
 		}
 	}
 
