@@ -21,4 +21,9 @@ public class IntVector2
     public static IntVector2 operator *(IntVector2 a, int b) {
         return new IntVector2(a.x * b, a.y * b);
     }
+
+    public static IntVector2 operator /(IntVector2 a, int b)
+    {
+        return new IntVector2(a.x / b, a.y / b);
+    }
 }

@@ -20,10 +20,25 @@ public class LevelGenerator : MonoBehaviour
 		map_height = (int)Mathf.Floor (Dimensions.y / TileSize);
 		map_data = new bool[map_width, map_height];
 
-		CaveCA (3);
+        //Set map to be open space.
+        placeRoom(new IntVector2(0, 0), new IntVector2(map_width, map_height), new IntVector2[] { });
 
-		//Clear a space in the middle of the map for the player to spawn in.
-		setMapRegion (new IntVector2 ((int)((map_width / 2) - 1), (int)((map_height / 2) - 1)), new IntVector2 (3, 3), false);
+        //Add some rooms.
+        for (int i = 0; i < 40; ++i)
+        {
+            IntVector2 room_center = new IntVector2(Random.Range(0, map_width), Random.Range(0, map_height));
+            IntVector2 room_size = new IntVector2(Random.Range(4, map_width / 4), Random.Range(4, map_height / 4));
+
+            IntVector2[] doorways = new IntVector2[]
+            {
+                new IntVector2(room_size.x / 2, 0),
+                new IntVector2(0, room_size.y / 2),
+                new IntVector2(room_size.x / 2, room_size.y - 1),
+                new IntVector2(room_size.x - 1, room_size.y / 2),
+            };
+
+            placeRoom(room_center - (room_size / 2), room_size, doorways);
+        }
 
 		placeWalls ();
 
@@ -39,7 +54,47 @@ public class LevelGenerator : MonoBehaviour
 		}
 	}
 
-	private void setAllMapData (bool value)
+    private void placeRoom (IntVector2 top_left, IntVector2 dimensions, IntVector2[] doorways)
+    {
+        for (int x = top_left.x; x < top_left.x + dimensions.x; ++x)
+        {
+            for (int y = top_left.y; y < top_left.y + dimensions.y; ++y)
+            {
+                //Ignore any out-of-bounds parts of the room.
+                if (x < 0 || y < 0 || x >= map_width || y >= map_height)
+                {
+                    continue;
+                }
+
+                if (x == top_left.x || x == top_left.x + dimensions.x - 1 || y == top_left.y || y == top_left.y + dimensions.y - 1)
+                {
+                    //Border
+                    map_data[x, y] = true;
+                }
+                else
+                {
+                    //Room
+                    map_data[x, y] = false;
+                }
+            }
+        }
+
+        //Add doorways
+        foreach (IntVector2 doorway in doorways)
+        {
+            //Ignore any out-of-bounds parts of the room.
+            int x = top_left.x + doorway.x;
+            int y = top_left.y + doorway.y;
+            if (x < 0 || y < 0 || x >= map_width || y >= map_height)
+            {
+                continue;
+            }
+
+            map_data[x, y] = false;
+        }
+    }
+
+    private void setAllMapData (bool value)
 	{
 		setMapRegion (new IntVector2 (0, 0), new IntVector2 (map_width, map_height), value);
 	}
