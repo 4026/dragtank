@@ -57,9 +57,10 @@ public class BulletController : MonoBehaviour
 			motion = to_target.normalized * speed * Time.deltaTime;
 		}
 
-		//Move the bullet to the new position, calculating to see if we hit anything on the way.
-		RaycastHit hit_info;
-		if (Physics.Raycast (transform.position, motion, out hit_info, motion.magnitude)) {
+        //Move the bullet to the new position, calculating to see if we hit anything on the way.
+        LayerMask layer_mask = LayerMask.GetMask("Enemies", "Walls", "Player");
+        RaycastHit hit_info;
+		if (Physics.Raycast (transform.position, motion, out hit_info, motion.magnitude, layer_mask)) {
 			transform.position = hit_info.point;
 			detonate ();
 		} else if (hitting_target) {

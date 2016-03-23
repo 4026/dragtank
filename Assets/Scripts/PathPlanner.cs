@@ -16,7 +16,10 @@ public class PathPlanner : MonoBehaviour
 	private GameManager gameManager;
 	private int next_path_point; //Which point on the path is the next one the tank is driving to.
 	private Vector3 render_offset; //Vector describing the offset of points on the rendered path from points on the path the player will actually drive.
-    
+
+    private GameObject m_continueGuide;
+    private GameObject m_resetGuide;
+
 	void Awake ()
 	{
 		gameManager = GameManager.Instance;
@@ -27,7 +30,10 @@ public class PathPlanner : MonoBehaviour
 	{
 		rendered_path = GetComponent<LineRenderer> ();
 		render_offset = transform.position - player.transform.position;
-	}
+
+        m_continueGuide = transform.FindChild("ContinueGuide").gameObject;
+        m_resetGuide = transform.FindChild("ResetGuide").gameObject;
+    }
 
 	void OnDestroy ()
 	{
@@ -69,14 +75,19 @@ public class PathPlanner : MonoBehaviour
 	{
 		dragged_path.Clear ();
 		rendered_path.SetVertexCount (0);
-	}
+
+        m_resetGuide.SetActive(false);
+        m_continueGuide.transform.position = player.transform.position;
+    }
 
 	public void AddWaypoint (Vector3 new_waypoint)
 	{
 		dragged_path.Add (new_waypoint);
 		rendered_path.SetVertexCount (dragged_path.Count);
 		rendered_path.SetPosition (dragged_path.Count - 1, new_waypoint + render_offset);
-	}
+
+        m_resetGuide.SetActive(true);
+    }
 
 	public Vector3 GetLastPoint ()
 	{

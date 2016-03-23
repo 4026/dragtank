@@ -9,6 +9,7 @@ public class ContinueGuideController : MonoBehaviour, IBeginDragHandler, IDragHa
     private GameManager gameManager;
     private PathPlanner pathPlanner;
     private Seeker seeker;
+    private GameObject m_player;
 
     void Awake()
     {
@@ -20,18 +21,13 @@ public class ContinueGuideController : MonoBehaviour, IBeginDragHandler, IDragHa
     {
         pathPlanner = transform.parent.GetComponent<PathPlanner>();
         seeker = GetComponent<Seeker>();
+        m_player = GameObject.Find("Player");
 	}
 
     void OnDestroy()
     {
         gameManager.NotifyStateChange -= OnStateChange;
     }
-
-    // Update is called once per frame
-    void Update ()
-    {
-	
-	}
 
     public void OnBeginDrag(PointerEventData eventData)
     {
@@ -142,6 +138,7 @@ public class ContinueGuideController : MonoBehaviour, IBeginDragHandler, IDragHa
 
 
             case GameState.Planning:
+                transform.position = m_player.transform.position;
                 GetComponent<SpriteRenderer>().enabled = true;
                 break;
         }
