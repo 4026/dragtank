@@ -83,6 +83,11 @@ public class PathPlanner : MonoBehaviour
 		return dragged_path.Last ();
 	}
 
+    public int GetNumWaypoints()
+    {
+        return dragged_path.Count;
+    }
+
 	public void UpdateFinalRenderPoint (Vector3 point, bool isValid = true)
 	{
 		rendered_path.SetColors (path_color, isValid ? path_color : invalid_path_color);
