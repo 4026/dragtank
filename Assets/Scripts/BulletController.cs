@@ -5,9 +5,10 @@ public class BulletController : MonoBehaviour
 {
 	public Vector3 target;
 	public float speed;
-	public GameObject explosion;
+	public GameObject ExplosionPrefab;
 	public float splashRadius;
 	public int damage;
+    public GameObject FiredBy;
 
 	private GameManager gameManager;
 	private float trail_fade_time;
@@ -73,16 +74,13 @@ public class BulletController : MonoBehaviour
 
 	private void detonate ()
 	{
-		//Check for killable things in the radius
-		LayerMask layer_mask = LayerMask.GetMask ("Enemies");
-		Collider[] hit_colliders = Physics.OverlapSphere (transform.position, splashRadius, layer_mask);
-		for (int i = 0; i < hit_colliders.Length; ++i) {
-			Destructible hit_object = hit_colliders [i].gameObject.GetComponent<Destructible>();
-			hit_object.TakeDamage(damage, transform.position);
+		GameObject explosion = Instantiate (ExplosionPrefab, transform.position, Quaternion.Euler (90f, 0f, 0f)) as GameObject;
+        ExplosionController explosion_data = explosion.GetComponent<ExplosionController>();
+        
+        explosion_data.CausedBy = FiredBy;
+        explosion_data.Damage = damage;
+        explosion_data.SplashRadius = splashRadius;
 
-		}
-
-		Instantiate (explosion, transform.position, Quaternion.Euler (90f, 0f, 0f));
-		Destroy (this.gameObject);
+        Destroy (this.gameObject);
 	}
 }

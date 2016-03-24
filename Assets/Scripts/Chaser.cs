@@ -13,7 +13,22 @@ public class Chaser : MonoBehaviour
 	//The max distance that the player may get away from the Chaser's current destination before the Chaser calculates a new path.
 	public float recalculateDistance;
 
-	private GameObject player;                  //The player object to chase.
+    /// <summary>
+    /// The splash radius of the explosion when this spider-bot self-destructs.
+    /// </summary>
+    public float SplashRadius;
+
+    /// <summary>
+    /// The damage this bot does when it self-destructs.
+    /// </summary>
+    public int Damage;
+
+    /// <summary>
+    /// The explosion spawned by this bot when it self-destructs.
+    /// </summary>
+    public GameObject ExplosionPrefab;
+
+    private GameObject player;                  //The player object to chase.
 	private Seeker seeker;
 	private CharacterController controller;
 	private Path current_path;                  //The chaser's current path
@@ -81,7 +96,7 @@ public class Chaser : MonoBehaviour
 		controller.Move (move_direction);
 
 		//Face sprite toward direction of travel
-		transform.rotation = Quaternion.FromToRotation (Vector3.forward, move_direction);
+		transform.rotation = Quaternion.LookRotation (move_direction, Vector3.up);
         
 		//Check if we are close enough to the next waypoint
 		//If we are, proceed to follow the next waypoint
@@ -93,10 +108,15 @@ public class Chaser : MonoBehaviour
 
 	public void OnControllerColliderHit (ControllerColliderHit hit)
 	{
-		if (hit.gameObject.tag == "Player") {
-            //Self destruct on collision with player...
-            Destructible destructible = gameObject.GetComponent<Destructible>();
-            destructible.TakeDamage(destructible.StartingHealth, transform.position);
+        //Self destruct on collision with player.
+        if (hit.gameObject.tag == "Player") {
+
+            //Spawn explosion
+            GameObject explosion = Instantiate(ExplosionPrefab, transform.position, Quaternion.Euler(90f, 0f, 0f)) as GameObject;
+            ExplosionController explosion_data = explosion.GetComponent<ExplosionController>();
+            explosion_data.CausedBy = gameObject;
+            explosion_data.Damage = Damage;
+            explosion_data.SplashRadius = SplashRadius;
 		}
 	}
 

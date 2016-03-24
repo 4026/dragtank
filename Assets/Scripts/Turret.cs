@@ -37,11 +37,14 @@ public class Turret : MonoBehaviour
 	{
 		//Spawn bullet
 		GameObject new_bullet = Instantiate (bulletPrefab, transform.position, Quaternion.identity) as GameObject;
-		new_bullet.GetComponent<BulletController> ().target = target.transform.position;
-		new_bullet.GetComponent<BulletController> ().speed = bulletSpeed;
-        
-		//Animate recoil
-		animating = true;
+        BulletController new_bullet_data = new_bullet.GetComponent<BulletController>();
+
+        new_bullet_data.target = target.transform.position;
+        new_bullet_data.speed = bulletSpeed;
+        new_bullet_data.FiredBy = transform.parent.gameObject;
+
+        //Animate recoil
+        animating = true;
 		Vector3 recoil_pos = Vector3.down;
 		Hashtable itween_options = iTween.Hash (
             "amount", recoil_pos,
