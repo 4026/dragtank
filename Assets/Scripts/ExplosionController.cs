@@ -17,7 +17,7 @@ public class ExplosionController : MonoBehaviour {
         for (int i = 0; i < hit_colliders.Length; ++i)
         {
             Destructible hit_object = hit_colliders[i].gameObject.GetComponent<Destructible>();
-            hit_object.TakeDamage(Damage, transform.position, CausedBy.tag == "Player" ? "Player" : null);
+            hit_object.TakeDamage(Damage, transform.position, (CausedBy != null && CausedBy.tag == "Player") ? "Player" : null);
         }
 
     }

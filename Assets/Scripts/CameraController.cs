@@ -43,23 +43,28 @@ public class CameraController : MonoBehaviour
 	void Update ()
 	{
 		switch (gameManager.gameState) {
-		case GameState.Moving:
-			//Determine where camera should focus.
-			transform.position = new Vector3 (Target.transform.position.x, transform.position.y, Target.transform.position.z);
+		    case GameState.Moving:
+                if (Target == null)
+                {
+                    break;
+                }
 
-			if (RotationFollowsTarget) {
-				iTween.RotateUpdate (gameObject, Target.transform.rotation.eulerAngles, 2.0f);
-			}
-			break;
+                //Determine where camera should focus.
+			    transform.position = new Vector3 (Target.transform.position.x, transform.position.y, Target.transform.position.z);
 
-		case GameState.Planning:
-			if (dragMomentum.magnitude > 0) {
-				dragMomentum = iTween.Vector3Update (dragMomentum, Vector3.zero, DragMomentumFriction);
-				if (IsMomentumApplied) {
-					transform.position += dragMomentum;
-				}
-			}
-			break;
+			    if (RotationFollowsTarget) {
+				    iTween.RotateUpdate (gameObject, Target.transform.rotation.eulerAngles, 2.0f);
+			    }
+			    break;
+
+		    case GameState.Planning:
+			    if (dragMomentum.magnitude > 0) {
+				    dragMomentum = iTween.Vector3Update (dragMomentum, Vector3.zero, DragMomentumFriction);
+				    if (IsMomentumApplied) {
+					    transform.position += dragMomentum;
+				    }
+			    }
+			    break;
 		}
 	}
 

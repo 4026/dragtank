@@ -28,6 +28,14 @@ public class Chaser : MonoBehaviour
     /// </summary>
     public GameObject ExplosionPrefab;
 
+
+    enum AIState
+    {
+        PlayerIsDead,
+        Chasing
+    }
+    private AIState m_currentAIState = AIState.Chasing;
+
     private GameObject player;                  //The player object to chase.
 	private Seeker seeker;
 	private CharacterController controller;
@@ -44,7 +52,9 @@ public class Chaser : MonoBehaviour
 	public void Start ()
 	{
 		player = GameObject.FindGameObjectWithTag ("Player");
-		seeker = GetComponent<Seeker> ();
+        player.GetComponent<Destructible>().OnDeath += OnPlayerDeath;
+
+        seeker = GetComponent<Seeker> ();
 		controller = GetComponent<CharacterController> ();
 
 		//Set up an initial plan of attack.
@@ -65,8 +75,8 @@ public class Chaser : MonoBehaviour
     
 	public void FixedUpdate ()
 	{
-		//Do nothing if the game is in the planning phase, or if we have no path to move along yet.
-		if (current_path == null || gameManager.gameState != GameState.Moving) {
+		//Do nothing if the game is in the planning phase, or if we have no path to move along yet, or if the player is dead.
+		if (current_path == null || gameManager.gameState != GameState.Moving || m_currentAIState == AIState.PlayerIsDead) {
 			return;
 		}
         
@@ -119,5 +129,10 @@ public class Chaser : MonoBehaviour
             explosion_data.SplashRadius = SplashRadius;
 		}
 	}
+
+    public void OnPlayerDeath()
+    {
+        m_currentAIState = AIState.PlayerIsDead;
+    }
 
 } 

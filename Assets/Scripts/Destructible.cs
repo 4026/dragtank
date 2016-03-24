@@ -32,7 +32,7 @@ public class Destructible : MonoBehaviour {
     /// <summary>
     /// Event that can be subscribed to to receive notification of this GameObject's death.
     /// </summary>
-    public static event DeathNotifier OnDeath;
+    public event DeathNotifier OnDeath;
 
     void Start ()
     {

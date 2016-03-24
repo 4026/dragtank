@@ -21,7 +21,8 @@ public class EnemyTankController : Tank
 	{
 		Dormant,
 		Attacking,
-		Chasing
+		Chasing,
+        PlayerIsDead
 	}
 	private AIState currentAIState = AIState.Dormant;
     
@@ -33,7 +34,9 @@ public class EnemyTankController : Tank
 	void Start ()
 	{
 		player = GameObject.FindGameObjectWithTag ("Player");
-		turret = GetComponentInChildren<EnemyTurretController> ();
+        player.GetComponent<Destructible>().OnDeath += OnPlayerDeath;
+
+        turret = GetComponentInChildren<EnemyTurretController> ();
 		seeker = GetComponent<Seeker> ();
 	}
 
@@ -50,7 +53,7 @@ public class EnemyTankController : Tank
 	
 	void Update ()
 	{
-		if (gameManager.gameState != GameState.Moving) {
+		if (gameManager.gameState != GameState.Moving || currentAIState == AIState.PlayerIsDead) {
 			return;
 		}
 
@@ -108,19 +111,24 @@ public class EnemyTankController : Tank
 
 		switch (new_state) {
 		
-		case AIState.Attacking:
-			turret.IsDormant = false;
-			break;
+		    case AIState.Attacking:
+			    turret.IsDormant = false;
+			    break;
 
-		case AIState.Chasing:
-			//Build a path to the player's last known position.
-			seeker.StartPath (transform.position, lastKnownPlayerPos, OnPathComplete);
-			break;
-		}
+		    case AIState.Chasing:
+			    //Build a path to the player's last known position.
+			    seeker.StartPath (transform.position, lastKnownPlayerPos, OnPathComplete);
+			    break;
+
+            case AIState.Dormant:
+            case AIState.PlayerIsDead:
+                turret.IsDormant = true;
+                break;
+        }
 	}
 
-	public void TakeDamage (float damage)
-	{
-
-	}
+    public void OnPlayerDeath()
+    {
+        setAIState(AIState.PlayerIsDead);
+    }
 }

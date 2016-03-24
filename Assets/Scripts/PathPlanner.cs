@@ -51,7 +51,7 @@ public class PathPlanner : MonoBehaviour
 
 	void Update ()
 	{
-		if (gameManager.gameState != GameState.Moving) {
+		if (gameManager.gameState != GameState.Moving || player == null) {
 			return;
 		}
 
