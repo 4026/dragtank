@@ -6,45 +6,47 @@ using Pathfinding;
 public class ContinueGuideController : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
 
-    private GameManager gameManager;
-    private PathPlanner pathPlanner;
-    private Seeker seeker;
+    private GameManager m_gameManager;
+    private PathPlanner m_pathPlanner;
+    private Seeker m_seeker;
     private GameObject m_player;
+    private EnvironmentController m_environment;
 
     void Awake()
     {
-        gameManager = GameManager.Instance;
-        gameManager.NotifyStateChange += OnStateChange;
+        m_gameManager = GameManager.Instance;
+        m_gameManager.NotifyStateChange += OnStateChange;
     }
 
     void Start ()
     {
-        pathPlanner = transform.parent.GetComponent<PathPlanner>();
-        seeker = GetComponent<Seeker>();
+        m_pathPlanner = transform.parent.GetComponent<PathPlanner>();
+        m_seeker = GetComponent<Seeker>();
         m_player = GameObject.Find("Player");
+        m_environment = FindObjectOfType<EnvironmentController>();
 	}
 
     void OnDestroy()
     {
-        gameManager.NotifyStateChange -= OnStateChange;
+        m_gameManager.NotifyStateChange -= OnStateChange;
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (gameManager.gameState != GameState.Planning)
+        if (m_gameManager.gameState != GameState.Planning)
         {
             return;
         }
 
-        if (pathPlanner.GetNumWaypoints() == 0)
+        if (m_pathPlanner.GetNumWaypoints() == 0)
         {
-            pathPlanner.AddWaypoint(transform.position);
+            m_pathPlanner.AddWaypoint(transform.position);
         }
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (gameManager.gameState != GameState.Planning)
+        if (m_gameManager.gameState != GameState.Planning)
         {
             return;
         }
@@ -54,48 +56,48 @@ public class ContinueGuideController : MonoBehaviour, IBeginDragHandler, IDragHa
         Vector3 current_world_pos = Camera.main.ScreenToWorldPoint(new Vector3(eventData.position.x, eventData.position.y, Camera.main.transform.position.y));
         transform.position = current_world_pos;
 
-        Vector3 last_world_pos = pathPlanner.GetLastPoint();
+        Vector3 last_world_pos = m_pathPlanner.GetLastPoint();
         Vector3 difference = current_world_pos - last_world_pos;
 
         RaycastHit hit_info;
-        LayerMask layer_mask = LayerMask.GetMask("Walls");
+        LayerMask wall_mask = LayerMask.GetMask("Walls");
 
-        if (Physics.CheckSphere(current_world_pos, 0.75f, layer_mask))
+        if (!m_environment.PointIsInBounds(current_world_pos) ||  Physics.CheckSphere(current_world_pos, 0.75f, wall_mask))
         {
-            //Endpoints inside walls should turn red and not extend the path.
-            pathPlanner.UpdateFinalRenderPoint(current_world_pos, false);
+            //Endpoints inside walls (or outside the map) should turn red and not extend the path.
+            m_pathPlanner.UpdateFinalRenderPoint(current_world_pos, false);
         }
-        else if (Physics.SphereCast((last_world_pos), 0.75f, difference, out hit_info, difference.magnitude, layer_mask))
+        else if (Physics.SphereCast((last_world_pos), 0.75f, difference, out hit_info, difference.magnitude, wall_mask))
         {
             //Paths that intersect walls but finish in a valid location should be corrected with pathfinding.
 
-            pathPlanner.UpdateFinalRenderPoint(current_world_pos, false); // While we're pathfinding, show the point as invalid.
-            if (seeker.IsDone())
+            m_pathPlanner.UpdateFinalRenderPoint(current_world_pos, false); // While we're pathfinding, show the point as invalid.
+            if (m_seeker.IsDone())
             {
-                seeker.StartPath(last_world_pos, current_world_pos, OnPathComplete);
+                m_seeker.StartPath(last_world_pos, current_world_pos, OnPathComplete);
             }
         }
         else if (difference.magnitude < 1)
         {
             //A short distance isn't enough to set a new waypoint
-            pathPlanner.UpdateFinalRenderPoint(current_world_pos);
+            m_pathPlanner.UpdateFinalRenderPoint(current_world_pos);
         }
         else
         {
             //A long enough distance registers a new waypoint.
-            pathPlanner.AddWaypoint(current_world_pos);
+            m_pathPlanner.AddWaypoint(current_world_pos);
         }
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (gameManager.gameState != GameState.Planning)
+        if (m_gameManager.gameState != GameState.Planning)
         {
             return;
         }
 
         Vector3 current_world_pos = Camera.main.ScreenToWorldPoint(new Vector3(eventData.position.x, eventData.position.y, Camera.main.transform.position.y));
-        Vector3 last_world_pos = pathPlanner.GetLastPoint();
+        Vector3 last_world_pos = m_pathPlanner.GetLastPoint();
         Vector3 difference = current_world_pos - last_world_pos;
 
         RaycastHit hit_info;
@@ -103,13 +105,13 @@ public class ContinueGuideController : MonoBehaviour, IBeginDragHandler, IDragHa
         if (Physics.SphereCast(last_world_pos, 0.75f, difference, out hit_info, difference.magnitude, layer_mask))
         {
             //If the final point leads the path through a wall, ignore it and remove it from the renderer.
-            pathPlanner.ClearFinalRenderPoint();
+            m_pathPlanner.ClearFinalRenderPoint();
             transform.position = last_world_pos;
         }
         else
         {
             //Otherwise, add it to the path.
-            pathPlanner.AddWaypoint(current_world_pos);
+            m_pathPlanner.AddWaypoint(current_world_pos);
         }
     }
 
@@ -124,7 +126,7 @@ public class ContinueGuideController : MonoBehaviour, IBeginDragHandler, IDragHa
 
         foreach (Vector3 waypoint in path.vectorPath)
         {
-            pathPlanner.AddWaypoint(waypoint);
+            m_pathPlanner.AddWaypoint(waypoint);
         }
     }
 
