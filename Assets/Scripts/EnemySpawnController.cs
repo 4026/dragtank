@@ -15,8 +15,9 @@ public class EnemySpawnController : MonoBehaviour
     public float spawnPeriod;
 	public float spawnDistance;
 
-	private GameObject player;
-	private GameManager gameManager;
+	private GameObject m_player;
+	private GameManager m_gameManager;
+    private EnvironmentController m_environment;
 
 	private class SpawnLocationException : UnityException
 	{
@@ -24,19 +25,19 @@ public class EnemySpawnController : MonoBehaviour
 
 	void Awake ()
 	{
-		gameManager = GameManager.Instance;
-		gameManager.NotifyStateChange += OnStateChange;
+		m_gameManager = GameManager.Instance;
+		m_gameManager.NotifyStateChange += OnStateChange;
 	}
 
 	void Start ()
 	{
-		player = GameObject.FindGameObjectWithTag ("Player");
-
+		m_player = GameObject.FindGameObjectWithTag ("Player");
+        m_environment = FindObjectOfType<EnvironmentController>();
 	}
     
 	void OnDestroy ()
 	{
-		gameManager.NotifyStateChange -= OnStateChange;
+		m_gameManager.NotifyStateChange -= OnStateChange;
 	}
 
 
@@ -77,9 +78,9 @@ public class EnemySpawnController : MonoBehaviour
 		for (int attempt = 0; attempt < 10; ++attempt) {
 			//Generate a new candidate spawn location
 			Vector2 spawn_direction = Random.insideUnitCircle.normalized * spawnDistance;
-			spawn_pos = new Vector3 (spawn_direction.x, 0, spawn_direction.y) + player.transform.position;
+			spawn_pos = new Vector3 (spawn_direction.x, 0, spawn_direction.y) + m_player.transform.position;
 
-			if (!Physics.CheckSphere (spawn_pos, 1.0f, layer_mask)) {
+			if (m_environment.PointIsInBounds(spawn_pos) && !Physics.CheckSphere (spawn_pos, 1.0f, layer_mask)) {
 				//If there's nothing else near the spawn location, great. Return this location.
 				return spawn_pos;
 			}

@@ -3,7 +3,7 @@ using DragTank.MapGenerator;
 
 public class LevelGenerator : MonoBehaviour
 {
-	public Rect Dimensions;
+	public EnvironmentController m_environment;
 	public float TileSize;
 	public GameObject Wall;
 	public GameObject WallParent;
@@ -11,11 +11,13 @@ public class LevelGenerator : MonoBehaviour
 	private Map map;
 	
 
-	void Awake ()
+	void Start ()
 	{
+        m_environment = FindObjectOfType<EnvironmentController>();
+
         map = new Map(
-            Mathf.FloorToInt(Dimensions.width / TileSize), 
-            Mathf.FloorToInt(Dimensions.height / TileSize), 
+            Mathf.FloorToInt(m_environment.Bounds.width / TileSize), 
+            Mathf.FloorToInt(m_environment.Bounds.height / TileSize), 
             false
         );
 
@@ -39,7 +41,7 @@ public class LevelGenerator : MonoBehaviour
 		for (int x = 0; x < map.Width; ++x) {
 			for (int y = 0; y < map.Height; ++y) {
 				if (map.GetTile(x, y)) {
-					Vector3 new_wall_pos = new Vector3 (Dimensions.x + TileSize * (x + 0.5f), 0, Dimensions.y + TileSize * (y + 0.5f));
+					Vector3 new_wall_pos = new Vector3 (m_environment.Bounds.x + TileSize * (x + 0.5f), 0, m_environment.Bounds.y + TileSize * (y + 0.5f));
 					GameObject new_wall = Instantiate (Wall, new_wall_pos, Quaternion.identity) as GameObject;
 					new_wall.transform.parent = WallParent.transform;
 				}
