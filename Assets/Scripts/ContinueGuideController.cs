@@ -12,14 +12,11 @@ public class ContinueGuideController : MonoBehaviour, IBeginDragHandler, IDragHa
     private GameObject m_player;
     private EnvironmentController m_environment;
 
-    void Awake()
+    void Start ()
     {
         m_gameManager = GameManager.Instance;
         m_gameManager.NotifyStateChange += OnStateChange;
-    }
 
-    void Start ()
-    {
         m_pathPlanner = transform.parent.GetComponent<PathPlanner>();
         m_seeker = GetComponent<Seeker>();
         m_player = GameObject.Find("Player");
@@ -33,7 +30,7 @@ public class ContinueGuideController : MonoBehaviour, IBeginDragHandler, IDragHa
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (m_gameManager.gameState != GameState.Planning)
+        if (m_gameManager.State != GameManager.GameState.Planning)
         {
             return;
         }
@@ -46,7 +43,7 @@ public class ContinueGuideController : MonoBehaviour, IBeginDragHandler, IDragHa
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (m_gameManager.gameState != GameState.Planning)
+        if (m_gameManager.State != GameManager.GameState.Planning)
         {
             return;
         }
@@ -91,7 +88,7 @@ public class ContinueGuideController : MonoBehaviour, IBeginDragHandler, IDragHa
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (m_gameManager.gameState != GameState.Planning)
+        if (m_gameManager.State != GameManager.GameState.Planning)
         {
             return;
         }
@@ -130,16 +127,16 @@ public class ContinueGuideController : MonoBehaviour, IBeginDragHandler, IDragHa
         }
     }
 
-    void OnStateChange(GameState old_state, GameState new_state)
+    void OnStateChange(GameManager.GameState old_state, GameManager.GameState new_state)
     {
         switch (new_state)
         {
-            case GameState.Moving:
+            case GameManager.GameState.Moving:
                 GetComponent<SpriteRenderer>().enabled = false;
                 break;
 
 
-            case GameState.Planning:
+            case GameManager.GameState.Planning:
                 transform.position = m_player.transform.position;
                 GetComponent<SpriteRenderer>().enabled = true;
                 break;

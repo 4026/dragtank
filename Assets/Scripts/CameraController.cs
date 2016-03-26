@@ -27,13 +27,16 @@ public class CameraController : MonoBehaviour
 
 	void Awake ()
 	{
-		gameManager = GameManager.Instance;
-		gameManager.NotifyStateChange += OnStateChange;
-		OnStateChange (gameManager.gameState, gameManager.gameState);
-
 		RotationFollowsTarget = true;
 		IsMomentumApplied = true;
 	}
+
+    void Start()
+    {
+        gameManager = GameManager.Instance;
+        gameManager.NotifyStateChange += OnStateChange;
+        OnStateChange(gameManager.State, gameManager.State);
+    }
 	
 	void OnDestroy ()
 	{
@@ -42,8 +45,8 @@ public class CameraController : MonoBehaviour
 		
 	void Update ()
 	{
-		switch (gameManager.gameState) {
-		    case GameState.Moving:
+		switch (gameManager.State) {
+		    case GameManager.GameState.Moving:
                 if (Target == null)
                 {
                     break;
@@ -57,7 +60,7 @@ public class CameraController : MonoBehaviour
 			    }
 			    break;
 
-		    case GameState.Planning:
+		    case GameManager.GameState.Planning:
 			    if (dragMomentum.magnitude > 0) {
 				    dragMomentum = iTween.Vector3Update (dragMomentum, Vector3.zero, DragMomentumFriction);
 				    if (IsMomentumApplied) {
@@ -68,14 +71,14 @@ public class CameraController : MonoBehaviour
 		}
 	}
 
-	void OnStateChange (GameState old_state, GameState new_state)
+	void OnStateChange (GameManager.GameState old_state, GameManager.GameState new_state)
 	{
         //Animate camera into position for state.
         Vector3 targetPosition;
         Hashtable tween_options;
 
         switch (new_state) {
-		    case GameState.MoveCountdown:
+		    case GameManager.GameState.MoveCountdown:
                 targetPosition = new Vector3 (Target.transform.position.x, MovementY, Target.transform.position.z);
 
                 tween_options = iTween.Hash(
@@ -95,7 +98,7 @@ public class CameraController : MonoBehaviour
                 break;
 			
 			
-		    case GameState.Planning:
+		    case GameManager.GameState.Planning:
                 targetPosition = new Vector3(Target.transform.position.x, PlanningY, Target.transform.position.z);
 
                 tween_options = iTween.Hash(
@@ -120,7 +123,7 @@ public class CameraController : MonoBehaviour
 	//Called when the camera is in position.
 	public void MoveComplete ()
 	{
-		gameManager.SetGameState (GameState.Moving);
+		gameManager.SetGameState (GameManager.GameState.Moving);
 	}
 
     public void SetY(float new_y)

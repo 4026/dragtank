@@ -14,18 +14,18 @@ public class EnemyTurretController : Turret
 
 	void Awake ()
 	{
-		gameManager = GameManager.Instance;
 		IsDormant = true;
 	}
 
 	public void Start ()
 	{
-		player = GameObject.FindGameObjectWithTag ("Player");
+        gameManager = GameManager.Instance;
+        player = GameObject.FindGameObjectWithTag ("Player");
 	}
     
 	void Update ()
 	{
-		if (gameManager.gameState != GameState.Moving) {
+		if (gameManager.State != GameManager.GameState.Moving) {
 			return;
 		}
 

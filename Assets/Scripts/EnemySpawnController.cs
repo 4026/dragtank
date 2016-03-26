@@ -23,15 +23,12 @@ public class EnemySpawnController : MonoBehaviour
 	{
 	}
 
-	void Awake ()
-	{
-		m_gameManager = GameManager.Instance;
-		m_gameManager.NotifyStateChange += OnStateChange;
-	}
-
 	void Start ()
 	{
-		m_player = GameObject.FindGameObjectWithTag ("Player");
+        m_gameManager = GameManager.Instance;
+        m_gameManager.NotifyStateChange += OnStateChange;
+
+        m_player = GameObject.FindGameObjectWithTag ("Player");
         m_environment = FindObjectOfType<EnvironmentController>();
 	}
     
@@ -41,11 +38,11 @@ public class EnemySpawnController : MonoBehaviour
 	}
 
 
-	void OnStateChange (GameState old_state, GameState new_state)
+	void OnStateChange (GameManager.GameState old_state, GameManager.GameState new_state)
 	{
-		if (new_state == GameState.Moving) {
+		if (new_state == GameManager.GameState.Moving) {
 			StartCoroutine (SpawnEnemies());
-		} else if (old_state == GameState.Moving) {
+		} else if (old_state == GameManager.GameState.Moving) {
 			StopCoroutine (SpawnEnemies());
 		}
 	}

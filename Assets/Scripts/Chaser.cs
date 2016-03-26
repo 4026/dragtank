@@ -44,14 +44,12 @@ public class Chaser : MonoBehaviour
 	private Vector3 current_path_destination;
 	private GameManager gameManager;
     
-	void Awake ()
-	{
-		gameManager = GameManager.Instance;
-	}
 
 	public void Start ()
 	{
-		player = GameObject.FindGameObjectWithTag ("Player");
+        gameManager = GameManager.Instance;
+
+        player = GameObject.FindGameObjectWithTag ("Player");
         player.GetComponent<Destructible>().OnDeath += OnPlayerDeath;
 
         seeker = GetComponent<Seeker> ();
@@ -76,7 +74,7 @@ public class Chaser : MonoBehaviour
 	public void FixedUpdate ()
 	{
 		//Do nothing if the game is in the planning phase, or if we have no path to move along yet, or if the player is dead.
-		if (current_path == null || gameManager.gameState != GameState.Moving || m_currentAIState == AIState.PlayerIsDead) {
+		if (current_path == null || gameManager.State != GameManager.GameState.Moving || m_currentAIState == AIState.PlayerIsDead) {
 			return;
 		}
         

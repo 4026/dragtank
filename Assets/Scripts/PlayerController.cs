@@ -11,16 +11,13 @@ public class PlayerController : Tank
 	private Vector3[] currentPath;
 	private int currentWaypoint;
 	private Seeker seeker;
-    
-	void Awake ()
-	{
-		gameManager = GameManager.Instance;
-		gameManager.NotifyStateChange += OnStateChange;
-	}
-
+   
 	void Start ()
 	{
-		trail_fade_time = GetComponentInChildren<TrailRenderer> ().time;
+        gameManager = GameManager.Instance;
+        gameManager.NotifyStateChange += OnStateChange;
+
+        trail_fade_time = GetComponentInChildren<TrailRenderer> ().time;
 		seeker = GetComponent<Seeker> ();
 	}
 
@@ -31,14 +28,14 @@ public class PlayerController : Tank
 
 	void Update ()
 	{
-		if (gameManager.gameState != GameState.Moving) {
+		if (gameManager.State != GameManager.GameState.Moving) {
 			return;
 		}
 
 		//If we've run out of path, stop.
 		if (currentWaypoint >= currentPath.Length) {
 			pathPlanner.ClearWaypoints ();
-			gameManager.SetGameState (GameState.Planning);
+			gameManager.SetGameState (GameManager.GameState.Planning);
 			return;
 		}
 		
@@ -55,17 +52,17 @@ public class PlayerController : Tank
 		}
 	}
 
-	void OnStateChange (GameState old_state, GameState new_state)
+	void OnStateChange (GameManager.GameState old_state, GameManager.GameState new_state)
 	{
 		switch (new_state) {
-		    case GameState.Moving:
+		    case GameManager.GameState.Moving:
 			    GetComponentInChildren<TrailRenderer> ().time = trail_fade_time; //Resume trail renderer fade-out
 			    currentPath = pathPlanner.Path;
 			    currentWaypoint = 1;
 			    break;
 
 
-		    case GameState.Planning:
+		    case GameManager.GameState.Planning:
 			    GetComponentInChildren<TrailRenderer> ().time = Mathf.Infinity; //Pause trail renderer fade-out
 			    break;
 		}

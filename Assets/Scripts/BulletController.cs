@@ -12,16 +12,13 @@ public class BulletController : MonoBehaviour
 
 	private GameManager gameManager;
 	private float trail_fade_time;
-
-	void Awake ()
-	{
-		gameManager = GameManager.Instance;
-		gameManager.NotifyStateChange += OnStateChange;
-	}
-
+    
 	void Start ()
 	{
-		trail_fade_time = GetComponent<TrailRenderer> ().time;
+        gameManager = GameManager.Instance;
+        gameManager.NotifyStateChange += OnStateChange;
+
+        trail_fade_time = GetComponent<TrailRenderer> ().time;
 	}
 
 	void OnDestroy ()
@@ -29,13 +26,13 @@ public class BulletController : MonoBehaviour
 		gameManager.NotifyStateChange -= OnStateChange;
 	}
 
-	void OnStateChange (GameState old_state, GameState new_state)
+	void OnStateChange (GameManager.GameState old_state, GameManager.GameState new_state)
 	{
 		switch (new_state) {
-		case GameState.Moving:
+		case GameManager.GameState.Moving:
 			GetComponent<TrailRenderer> ().time = trail_fade_time; //Resume trail renderer fade-out
 			break;
-		case GameState.Planning:
+		case GameManager.GameState.Planning:
 			GetComponent<TrailRenderer> ().time = Mathf.Infinity; //Pause trail renderer fade-out
 			break;
 		}
@@ -43,7 +40,7 @@ public class BulletController : MonoBehaviour
 
 	void FixedUpdate ()
 	{
-		if (GameManager.Instance.gameState != GameState.Moving) {
+		if (gameManager.State != GameManager.GameState.Moving) {
 			return;
 		}
 

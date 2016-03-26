@@ -8,14 +8,11 @@ public class GoButton : MonoBehaviour
     private PathPlanner m_pathPlanner;
     private GameManager m_gameManager;
 
-    private void Awake()
+    private void Start()
     {
         m_gameManager = GameManager.Instance;
         m_gameManager.NotifyStateChange += OnGameStateChange;
-    }
 
-    private void Start()
-    {
         m_button = transform.FindChild("GoButton").gameObject;
 
         m_pathPlanner = FindObjectOfType<PathPlanner>();
@@ -30,19 +27,19 @@ public class GoButton : MonoBehaviour
 
     public void OnClick()
     {
-        m_gameManager.SetGameState(GameState.MoveCountdown);
+        m_gameManager.SetGameState(GameManager.GameState.MoveCountdown);
     }
 
-    private void OnGameStateChange(GameState old_state, GameState new_state)
+    private void OnGameStateChange(GameManager.GameState old_state, GameManager.GameState new_state)
     {
         switch (new_state)
         {
-            case GameState.Planning:
+            case GameManager.GameState.Planning:
                 m_button.SetActive(true);
                 m_button.GetComponent<Button>().interactable = false;
                 break;
 
-            case GameState.MoveCountdown:
+            case GameManager.GameState.MoveCountdown:
                 m_button.SetActive(false);
                 m_button.GetComponent<Button>().interactable = false;
                 break;

@@ -26,14 +26,11 @@ public class EnemyTankController : Tank
 	}
 	private AIState currentAIState = AIState.Dormant;
     
-	void Awake ()
-	{
-		gameManager = GameManager.Instance;
-	}
-
 	void Start ()
 	{
-		player = GameObject.FindGameObjectWithTag ("Player");
+        gameManager = GameManager.Instance;
+
+        player = GameObject.FindGameObjectWithTag ("Player");
         player.GetComponent<Destructible>().OnDeath += OnPlayerDeath;
 
         turret = GetComponentInChildren<EnemyTurretController> ();
@@ -53,7 +50,7 @@ public class EnemyTankController : Tank
 	
 	void Update ()
 	{
-		if (gameManager.gameState != GameState.Moving || currentAIState == AIState.PlayerIsDead) {
+		if (gameManager.State != GameManager.GameState.Moving || currentAIState == AIState.PlayerIsDead) {
 			return;
 		}
 

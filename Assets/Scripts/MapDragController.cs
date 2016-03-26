@@ -21,14 +21,14 @@ public class MapDragController : MonoBehaviour, IBeginDragHandler, IDragHandler,
 	private float cameraSizeOrigin;
 	private Vector3 cameraPosOrigin;
 
-	void Awake ()
+	void Start ()
 	{
 		gameManager = GameManager.Instance;
 	}
 
 	public void Update ()
 	{
-		if (Input.touchCount != 2 || gameManager.gameState != GameState.Planning) {
+		if (Input.touchCount != 2 || gameManager.State != GameManager.GameState.Planning) {
 			if (isPinching) {
 				isPinching = false;
 				ControlledCamera.IsMomentumApplied = true;
@@ -93,15 +93,15 @@ public class MapDragController : MonoBehaviour, IBeginDragHandler, IDragHandler,
 			return;
 		}
 
-		switch (gameManager.gameState) {
-		case GameState.Planning:
-			Vector3 newDragWorldPos = ControlledCamera.screenToGroundPoint (eventData.position);
-			Vector3 dragDirection = newDragWorldPos - dragOrigin;
-			ControlledCamera.Pan (-dragDirection);
-			break;
+		switch (gameManager.State) {
+		    case GameManager.GameState.Planning:
+			    Vector3 newDragWorldPos = ControlledCamera.screenToGroundPoint (eventData.position);
+			    Vector3 dragDirection = newDragWorldPos - dragOrigin;
+			    ControlledCamera.Pan (-dragDirection);
+			    break;
 
-		case GameState.Moving:
-			break;
+		    case GameManager.GameState.Moving:
+			    break;
 		}
 
 

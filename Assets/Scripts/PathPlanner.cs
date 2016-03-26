@@ -22,16 +22,13 @@ public class PathPlanner : MonoBehaviour
 
     private GameObject m_continueGuide;
     private GameObject m_resetGuide;
-
-	void Awake ()
-	{
-		gameManager = GameManager.Instance;
-		gameManager.NotifyStateChange += OnStateChange;
-	}
-
+    
 	void Start ()
 	{
-		rendered_path = GetComponent<LineRenderer> ();
+        gameManager = GameManager.Instance;
+        gameManager.NotifyStateChange += OnStateChange;
+
+        rendered_path = GetComponent<LineRenderer> ();
 		render_offset = transform.position - player.transform.position;
 
         m_continueGuide = transform.FindChild("ContinueGuide").gameObject;
@@ -43,10 +40,10 @@ public class PathPlanner : MonoBehaviour
 		gameManager.NotifyStateChange -= OnStateChange;
 	}
 
-	void OnStateChange (GameState old_state, GameState new_state)
+	void OnStateChange (GameManager.GameState old_state, GameManager.GameState new_state)
 	{
 		switch (new_state) {
-		case GameState.Moving:
+		case GameManager.GameState.Moving:
 			next_path_point = 1;
 			break;
 		}
@@ -54,7 +51,7 @@ public class PathPlanner : MonoBehaviour
 
 	void Update ()
 	{
-		if (gameManager.gameState != GameState.Moving || player == null) {
+		if (gameManager.State != GameManager.GameState.Moving || player == null) {
 			return;
 		}
 

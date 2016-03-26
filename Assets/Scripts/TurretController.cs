@@ -15,7 +15,7 @@ public class TurretController : Turret
 	private bool is_dragging = false;
 	private GameManager gameManager;
 
-	void Awake ()
+	void Start ()
 	{
 		gameManager = GameManager.Instance;
 
@@ -33,7 +33,7 @@ public class TurretController : Turret
 
 	void Update ()
 	{
-		if (gameManager.gameState != GameState.Moving) {
+		if (gameManager.State != GameManager.GameState.Moving) {
 			return;
 		}
 
@@ -59,7 +59,7 @@ public class TurretController : Turret
 
 	void StartDrag (Vector2 screen_pos)
 	{
-		if (gameManager.gameState != GameState.Moving) {
+		if (gameManager.State != GameManager.GameState.Moving) {
 			return;
 		}
 
@@ -73,7 +73,7 @@ public class TurretController : Turret
     
 	void UpdateDrag (Vector2 screen_pos)
 	{
-		if (gameManager.gameState != GameState.Moving || !is_dragging) {
+		if (gameManager.State != GameManager.GameState.Moving || !is_dragging) {
 			return;
 		}
 
@@ -83,7 +83,7 @@ public class TurretController : Turret
     
 	void EndDrag (Vector2 screen_pos)
 	{
-		if (gameManager.gameState != GameState.Moving || !is_dragging) {
+		if (gameManager.State != GameManager.GameState.Moving || !is_dragging) {
 			return;
 		}
 

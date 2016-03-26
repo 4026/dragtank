@@ -8,13 +8,11 @@ public class ResetGuideController : MonoBehaviour, IPointerClickHandler
     private PathPlanner m_pathPlanner;
     private GameManager gameManager;
 
-    void Awake()
+    void Start ()
     {
         gameManager = GameManager.Instance;
         gameManager.NotifyStateChange += OnStateChange;
-    }
 
-    void Start () {
         m_pathPlanner = transform.parent.GetComponent<PathPlanner>();
         m_player = GameObject.Find("Player");
     }
@@ -29,16 +27,16 @@ public class ResetGuideController : MonoBehaviour, IPointerClickHandler
         m_pathPlanner.ClearWaypoints();
     }
 
-    void OnStateChange(GameState old_state, GameState new_state)
+    void OnStateChange(GameManager.GameState old_state, GameManager.GameState new_state)
     {
         switch (new_state)
         {
-            case GameState.Moving:
+            case GameManager.GameState.Moving:
                 GetComponent<SpriteRenderer>().enabled = false;
                 break;
 
 
-            case GameState.Planning:
+            case GameManager.GameState.Planning:
                 transform.position = m_player.transform.position;
                 GetComponent<SpriteRenderer>().enabled = true;
                 break;
