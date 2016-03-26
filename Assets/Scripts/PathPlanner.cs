@@ -9,6 +9,9 @@ public class PathPlanner : MonoBehaviour
 
 	public Vector3[] Path { get { return dragged_path.ToArray (); } }
 
+    public delegate void PathChangeNotifier();
+    public event PathChangeNotifier OnPathChange;
+
 	private List<Vector3> dragged_path = new List<Vector3> ();
 	private LineRenderer rendered_path;
 	private static Color path_color = new Color (1f, 1f, 1f, 0.5f);
@@ -87,6 +90,8 @@ public class PathPlanner : MonoBehaviour
 		rendered_path.SetPosition (dragged_path.Count - 1, new_waypoint + render_offset);
 
         m_resetGuide.SetActive(true);
+
+        if (OnPathChange != null) OnPathChange();
     }
 
 	public Vector3 GetLastPoint ()
