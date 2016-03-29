@@ -74,5 +74,7 @@ public class ObjectiveController : MonoBehaviour
     {
         m_arrivedAtExit = true;
         m_cube.gameObject.SetActive(false);
+
+        m_exit.GetComponent<ExitController>().NewObjectiveComplete();
     }
 }

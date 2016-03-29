@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 
-public delegate void DeathNotifier();
-
 public class Destructible : MonoBehaviour {
 
     /// <summary>
@@ -29,10 +27,12 @@ public class Destructible : MonoBehaviour {
     /// </summary>
     public float RearDamageMultiplier = 1f;
 
+    public delegate void DeathNotifier();
     /// <summary>
     /// Event that can be subscribed to to receive notification of this GameObject's death.
     /// </summary>
     public event DeathNotifier OnDeath;
+    
 
     void Start ()
     {
