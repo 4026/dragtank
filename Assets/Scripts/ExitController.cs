@@ -20,12 +20,6 @@ public class ExitController : MonoBehaviour
         get { return ObjectivesCompleted >= ObjectivesRequired; }
     }
 
-    public delegate void ExitNotifier();
-    /// <summary>
-    /// Event that can be subscribed to to receive notification of the player leaving the level via this exit.
-    /// </summary>
-    public event ExitNotifier OnExit;
-
     private ParticleSystem m_particles;
 
 	void Start ()
@@ -53,9 +47,6 @@ public class ExitController : MonoBehaviour
             return;
         }
 
-        if (OnExit != null)
-        {
-            OnExit();
-        }
+        GameManager.Instance.OnPlayerVictory();
     }
 }

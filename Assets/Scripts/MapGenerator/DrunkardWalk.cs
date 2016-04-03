@@ -13,10 +13,10 @@ namespace DragTank.MapGenerator
 
         public static void runOnMap(Map map, float emptyFraction)
         {
-            map.SetAll(true);
+            map.SetAll(Map.Tile.Wall);
 
             IntVector2 position = new IntVector2(Mathf.FloorToInt(map.Width / 2), Mathf.FloorToInt(map.Height / 2));
-            map.SetTile(position, false);
+            map.SetTile(position, Map.Tile.Empty);
 
             int empty_tiles = 1;
             int total_tiles = map.Height * map.Width;
@@ -28,9 +28,9 @@ namespace DragTank.MapGenerator
                 position.x = Mathf.Clamp(position.x, 0, map.Width - 1);
                 position.y = Mathf.Clamp(position.y, 0, map.Height - 1);
 
-                if (map.GetTile(position))
+                if (map.GetTile(position) == Map.Tile.Wall)
                 {
-                    map.SetTile(position, false);
+                    map.SetTile(position, Map.Tile.Empty);
                     ++empty_tiles;
                 }
             }

@@ -38,8 +38,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         //Watch the player so that we can end the scene if they die.
-        GameObject.Find("Player").GetComponent<Destructible>().OnDeath += onPlayerDeath;
-        GameObject.FindObjectOfType<ExitController>().OnExit += onPlayerVictory;
+        GameObject.Find("Player").GetComponent<Destructible>().OnDeath += OnPlayerDeath;
     }
 
     void OnDestroy()
@@ -47,12 +46,12 @@ public class GameManager : MonoBehaviour
         Instance = null;
     }
 
-    private void onPlayerDeath()
+    public void OnPlayerDeath()
     {
         SceneManager.LoadScene("Menu");
     }
 
-    private void onPlayerVictory()
+    public void OnPlayerVictory()
     {
         SceneManager.LoadScene("Menu");
     }

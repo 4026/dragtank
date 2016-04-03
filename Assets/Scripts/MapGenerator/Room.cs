@@ -48,12 +48,12 @@ namespace DragTank.MapGenerator
                     )
                     {
                         //Wall
-                        map.SetTile(write_location, true);
+                        map.SetTile(write_location, Map.Tile.Wall);
                     }
                     else
                     {
                         //Room
-                        map.SetTile(write_location, false);
+                        map.SetTile(write_location, Map.Tile.Empty);
                     }
                 }
             }
@@ -61,7 +61,7 @@ namespace DragTank.MapGenerator
             //Add exits
             foreach (IntVector2 exit in Exits)
             {
-                map.SetTile(TopLeft + exit, false);
+                map.SetTile(TopLeft + exit, Map.Tile.Empty);
             }
         }
     }
