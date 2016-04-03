@@ -35,7 +35,7 @@ public class PlayerController : Tank
 		//If we've run out of path, stop.
 		if (currentWaypoint >= currentPath.Length) {
 			pathPlanner.ClearWaypoints ();
-			gameManager.SetGameState (GameManager.GameState.Planning);
+			gameManager.SetGameState (GameManager.GameState.PlanCountdown);
 			return;
 		}
 		

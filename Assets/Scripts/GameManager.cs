@@ -7,8 +7,14 @@ public class GameManager : MonoBehaviour
     {
         Planning,
         MoveCountdown,
-        Moving
+        Moving,
+        PlanCountdown,
+        SceneEnding
     }
+
+    public float MoveCountdownDuration;
+    public float PlanningCountdownDuration;
+    public float SceneEndDuration;
 
     public static GameManager Instance { get; private set; }
 
@@ -48,10 +54,10 @@ public class GameManager : MonoBehaviour
 
     public void OnPlayerDeath()
     {
-        SceneManager.LoadScene("Menu");
+        SetGameState(GameState.SceneEnding);
     }
 
-    public void OnPlayerVictory()
+    public void OnSceneEndComplete()
     {
         SceneManager.LoadScene("Menu");
     }

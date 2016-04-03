@@ -47,6 +47,13 @@ public class ExitController : MonoBehaviour
             return;
         }
 
-        GameManager.Instance.OnPlayerVictory();
+        GameManager.Instance.SetGameState(GameManager.GameState.SceneEnding);
+
+        Hashtable tween_options = iTween.Hash(
+            "position", transform.position,
+            "time", 1.0f,
+            "easetype", iTween.EaseType.easeInQuad
+        );
+        iTween.MoveTo(other.gameObject, tween_options);
     }
 }
