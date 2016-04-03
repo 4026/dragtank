@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ExplosionController : MonoBehaviour {
-
+public class ExplosionController : MonoBehaviour
+{
     public GameObject CausedBy;
 
     public int Damage;
