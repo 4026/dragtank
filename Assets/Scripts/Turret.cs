@@ -4,18 +4,34 @@ using System.Collections.Generic;
 
 public class Turret : MonoBehaviour
 {
-	public float turnSpeed;
-	public GameObject bulletPrefab;
-	public float bulletSpeed;
+	public float TurnSpeed;
+	public GameObject BulletPrefab;
+	public float BulletSpeed;
+    public float FirePeriod;
 
-	protected bool animating = false;
+    public bool CanFire
+    {
+        get { return m_timeToNextShot <= 0; }
+    }
 
-	/// <summary>
-	/// Makes the turret rotate to point at the specified position.
-	/// </summary>
-	/// <returns><c>true</c>, if turret is pointing at the position after the rotation, <c>false</c> otherwise.</returns>
-	/// <param name="position">Position.</param>
-	protected bool turnToward (Vector3 target_position)
+    protected bool animating = false;
+
+    public float m_timeToNextShot = 0;
+
+    public virtual void Update()
+    {
+        if (GameManager.Instance.State == GameManager.GameState.Moving && m_timeToNextShot > 0)
+        {
+            m_timeToNextShot -= Time.deltaTime;
+        }
+    }
+
+
+    /// <summary>
+    /// Makes the turret rotate to point at the specified position.
+    /// </summary>
+    /// <returns><c>true</c>, if turret is pointing at the position after the rotation, <c>false</c> otherwise.</returns>
+    protected bool turnToward (Vector3 target_position)
 	{
 		Vector3 target_from_self = target_position - transform.position;
 		float bearing = Vector3.Angle (transform.up, target_from_self);
@@ -23,12 +39,12 @@ public class Turret : MonoBehaviour
 		//Create the rotation we need to be in to look at the target
 		Quaternion lookRotation = Quaternion.LookRotation (target_from_self.normalized, Vector3.up) * Quaternion.Euler (90, 0, 0);
         
-		if (Mathf.Abs (bearing) < Time.deltaTime * turnSpeed) {
+		if (Mathf.Abs (bearing) < Time.deltaTime * TurnSpeed) {
 			transform.rotation = lookRotation;
 			return true;
 		} else {
 			//Rotate over time according to speed until we are in the required rotation.
-			transform.rotation = Quaternion.Slerp (transform.rotation, lookRotation, Time.deltaTime * (turnSpeed / bearing));
+			transform.rotation = Quaternion.Slerp (transform.rotation, lookRotation, Time.deltaTime * (TurnSpeed / bearing));
 			return false;
 		}
 	}
@@ -36,11 +52,11 @@ public class Turret : MonoBehaviour
 	protected void fireAt (GameObject target)
 	{
 		//Spawn bullet
-		GameObject new_bullet = Instantiate (bulletPrefab, transform.position, Quaternion.identity) as GameObject;
+		GameObject new_bullet = Instantiate (BulletPrefab, transform.position, Quaternion.identity) as GameObject;
         BulletController new_bullet_data = new_bullet.GetComponent<BulletController>();
 
         new_bullet_data.target = target.transform.position;
-        new_bullet_data.speed = bulletSpeed;
+        new_bullet_data.speed = BulletSpeed;
         new_bullet_data.FiredBy = transform.parent.gameObject;
 
         //Animate recoil
@@ -52,6 +68,8 @@ public class Turret : MonoBehaviour
             "oncomplete", "animationEnd"
 		);
 		iTween.PunchPosition (this.gameObject, itween_options);
+
+        m_timeToNextShot = FirePeriod;
 	}
     
 	public void animationEnd ()

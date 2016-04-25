@@ -8,6 +8,7 @@ public class EnemySpawnController : MonoBehaviour
     {
         public GameObject EnemyType;
         public int MaxToSpawn;
+        public int GroupSize;
     }
 
     public SpawnSpecification[] SpawnSpecifications;
@@ -18,8 +19,9 @@ public class EnemySpawnController : MonoBehaviour
 	private GameObject m_player;
 	private GameManager m_gameManager;
     private EnvironmentController m_environment;
+    private Coroutine m_coroutine;
 
-	private class SpawnLocationException : UnityException
+    private class SpawnLocationException : UnityException
 	{
 	}
 
@@ -41,22 +43,37 @@ public class EnemySpawnController : MonoBehaviour
 	void OnStateChange (GameManager.GameState old_state, GameManager.GameState new_state)
 	{
 		if (new_state == GameManager.GameState.Moving) {
-			StartCoroutine (SpawnEnemies());
+			m_coroutine = StartCoroutine (SpawnEnemies());
 		} else if (old_state == GameManager.GameState.Moving) {
-			StopCoroutine (SpawnEnemies());
+			StopCoroutine (m_coroutine);
 		}
 	}
 
 	IEnumerator SpawnEnemies ()
 	{
-		while (true) {
+		while (m_player != null) {
 			foreach (SpawnSpecification spawn_specification in SpawnSpecifications)
             {
 				GameObject[] existingEnemies = GameObject.FindGameObjectsWithTag (spawn_specification.EnemyType.tag);
 				if (existingEnemies.Length < spawn_specification.MaxToSpawn) {
 					try {
 						Vector3 spawn_pos = getSpawnLocation ();
-						Instantiate (spawn_specification.EnemyType, spawn_pos, Quaternion.identity);
+                        for (int i = 0; i < spawn_specification.GroupSize; ++i)
+                        {
+                            Vector3 deviation;
+                            if (i == 0)
+                            {
+                                deviation = Vector3.zero;
+                            }
+                            else
+                            {
+                                float deviation_degrees = (i - 1) * (360 / (spawn_specification.GroupSize - 1));
+                                deviation = Quaternion.AngleAxis(deviation_degrees, Vector3.up) * Vector3.forward;
+                            }
+                            
+                            Instantiate(spawn_specification.EnemyType, spawn_pos + deviation, Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up));
+                        }
+						
 					} catch (SpawnLocationException) {
 						Debug.LogWarning ("Failed to find enemy spawn location.");
 					}

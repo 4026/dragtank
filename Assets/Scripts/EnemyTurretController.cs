@@ -23,8 +23,10 @@ public class EnemyTurretController : Turret
         player = GameObject.FindGameObjectWithTag ("Player");
 	}
     
-	void Update ()
+	public override void Update ()
 	{
+        base.Update();
+
 		if (gameManager.State != GameManager.GameState.Moving) {
 			return;
 		}
@@ -33,7 +35,7 @@ public class EnemyTurretController : Turret
 		if (!IsDormant && !animating) {
 			//If the player is in vision, rotate to face them.
 			if (IsPlayerInVision ()) {
-				if (turnToward (player.transform.position)) {
+				if (turnToward (player.transform.position) && CanFire) {
 					fireAt (player);
 				}
 			} else {

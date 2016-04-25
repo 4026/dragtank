@@ -2,10 +2,21 @@
 using System.Collections;
 using Pathfinding;
 using System.Linq;
+using System.Collections.Generic;
 
 public class EnemyTankController : Tank
 {
 	public float NextWaypointDistance;
+
+    /// <summary>
+    /// How far the tank will roam away from where it was spawned while patrolling.
+    /// </summary>
+    public float PatrolRange;
+
+    /// <summary>
+    /// How long each individual leg of the tank's patrol should be.
+    /// </summary>
+    public float PatrolDistance;
 
 	private GameManager gameManager;
 	private EnemyTurretController turret;
@@ -17,10 +28,16 @@ public class EnemyTankController : Tank
 	private Path currentPath;                  //The chaser's current path
 	private int currentWaypoint = 0;            //The waypoint we are currently moving towards
 
+    /// <summary>
+    /// Where the tank was first spawned. It will try to remain near to this area.
+    /// </summary>
+    private Vector3 home;
+
 	enum AIState
 	{
 		Dormant,
-		Attacking,
+        Patrolling,
+        Attacking,
 		Chasing,
         PlayerIsDead
 	}
@@ -29,6 +46,8 @@ public class EnemyTankController : Tank
 	void Start ()
 	{
         gameManager = GameManager.Instance;
+
+        home = transform.position;
 
         player = GameObject.FindGameObjectWithTag ("Player");
         player.GetComponent<Destructible>().OnDeath += OnPlayerDeath;
@@ -55,17 +74,25 @@ public class EnemyTankController : Tank
 		}
 
 		//Set state
-		if (turret.IsPlayerInVision ()) {
+		if (turret.IsPlayerInVision ())
+        {
 			//"There they are! Get them!"
 			lastKnownPlayerPos = player.transform.position;
 			setAIState (AIState.Attacking);
-		} else if (currentAIState != AIState.Dormant) {
+		}
+        else if (currentAIState == AIState.Attacking || currentAIState == AIState.Chasing)
+        {
 			//"We've lost them! Get after them!"
 			setAIState (AIState.Chasing);
 		}
+        else
+        {
+            //"Must've been rats."
+            setAIState(AIState.Patrolling);
+        }
 
 		//Act on state
-		if (currentAIState == AIState.Chasing) {
+		if (currentAIState == AIState.Chasing || currentAIState == AIState.Patrolling) {
 			//Chase toward the player's last known position.
 
 			//If we have no path to move along yet, wait until we do.
@@ -117,6 +144,11 @@ public class EnemyTankController : Tank
 			    seeker.StartPath (transform.position, lastKnownPlayerPos, OnPathComplete);
 			    break;
 
+            case AIState.Patrolling:
+                //Build a path to a patrol location.
+                seeker.StartPath(transform.position, getNewPatrolLocation(), OnPathComplete);
+                break;
+
             case AIState.Dormant:
             case AIState.PlayerIsDead:
                 turret.IsDormant = true;
@@ -128,4 +160,36 @@ public class EnemyTankController : Tank
     {
         setAIState(AIState.PlayerIsDead);
     }
+
+    private Vector3 getNewPatrolLocation()
+    {
+        // If we've strayd too far from home, go back.
+        if (Vector3.Distance(transform.position, home) > PatrolRange)
+        {
+            return home;
+        }
+
+        List<Vector3> directions = new List<Vector3>(new Vector3[] {
+            Vector3.forward * PatrolDistance,
+            Vector3.right * PatrolDistance,
+            Vector3.back * PatrolDistance,
+            Vector3.left * PatrolDistance
+        });
+        LayerMask layer_mask = LayerMask.GetMask("Walls");
+
+        do
+        {
+            int direction_index = Random.Range(0, directions.Count);
+            Vector3 patrol_destination = transform.position + directions[direction_index];
+
+            if (!Physics.CheckSphere(patrol_destination, 1f, layer_mask))
+            {
+                return patrol_destination;
+            }
+            directions.RemoveAt(direction_index);
+        } while (directions.Count > 0);
+
+        return home;
+    }
+
 }

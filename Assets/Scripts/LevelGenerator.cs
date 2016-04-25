@@ -39,7 +39,7 @@ public class LevelGenerator : MonoBehaviour
         );
 
         //Add some rooms.
-        for (int i = 0; i < 20; ++i)
+        for (int i = 0; i < 10; ++i)
         {
             Room room = Room.GenerateForMap(m_map, 5, m_map.Width / 4);
             room.writeToMap(m_map);

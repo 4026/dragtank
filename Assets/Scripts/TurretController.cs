@@ -31,9 +31,11 @@ public class TurretController : Turret
 		InputController.NotifyStopDrag -= EndDrag;
 	}
 
-	void Update ()
+	public override void Update ()
 	{
-		if (gameManager.State != GameManager.GameState.Moving) {
+        base.Update();
+
+        if (gameManager.State != GameManager.GameState.Moving) {
 			return;
 		}
 
@@ -44,7 +46,7 @@ public class TurretController : Turret
 				//If we have an active target, rotate to face it.
 				GameObject target = (targets.Count > 0) ? targets.First () : dragged_target;
                 
-				if (turnToward (target.transform.position) && targets.Count > 0) {
+				if (turnToward (target.transform.position) && CanFire && targets.Count > 0) {
 					fireAt (target);
 					//Remove target indicator
 					targets.Remove (target);
