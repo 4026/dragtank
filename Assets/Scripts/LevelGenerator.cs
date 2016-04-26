@@ -31,6 +31,9 @@ public class LevelGenerator : MonoBehaviour
         //Find the environment parent object in the scene.
         m_environment = FindObjectOfType<EnvironmentController>();
 
+        //Load sector data
+        SectorImporter sectors = new SectorImporter();
+
         //Initialise an empty map.
         m_map = new Map(
             Mathf.FloorToInt(m_environment.Bounds.width / TileSize), 
@@ -38,24 +41,32 @@ public class LevelGenerator : MonoBehaviour
             Map.Tile.Empty
         );
 
-        //Add some rooms.
-        for (int i = 0; i < 10; ++i)
+        
+        //Choose sectors to make up the map.
+        Sector[,] sector_choices = new Sector[m_map.Width / Sector.Width, m_map.Height / Sector.Height];
+        for (int x = 0; x < sector_choices.GetLength(0); ++x)
         {
-            Room room = Room.GenerateForMap(m_map, 5, m_map.Width / 4);
-            room.writeToMap(m_map);
+            for (int y = 0; y < sector_choices.GetLength(1); ++y)
+            {
+                sector_choices[x, y] = sectors.getRandomMiscSector();
+            }
         }
+        sector_choices[0, 0] = sectors.getRandomExitSector();
+        sector_choices[sector_choices.GetLength(0) - 1, 0] = sectors.getRandomObjectiveSector();
+        sector_choices[0, sector_choices.GetLength(1) - 1] = sectors.getRandomObjectiveSector();
+        sector_choices[sector_choices.GetLength(0) - 1, sector_choices.GetLength(1) - 1] = sectors.getRandomObjectiveSector();
 
-        //Add an exit, and some objectives.
-        m_map.SetTile(m_map.GetRandomEmptyLocation(), Map.Tile.Exit);
-
-        int num_objectives = m_tilePrefabs[Map.Tile.Exit].GetComponent<ExitController>().ObjectivesRequired;
-        for (int i = 0; i < num_objectives; ++i)
+        //Write sectors to map.
+        for (int x = 0; x < sector_choices.GetLength(0); ++x)
         {
-            m_map.SetTile(m_map.GetRandomEmptyLocation(), Map.Tile.Objective);
+            for (int y = 0; y < sector_choices.GetLength(1); ++y)
+            {
+                sector_choices[x, y].WriteToMap(m_map, new IntVector2(x * Sector.Width, y * Sector.Height));
+            }
         }
 
         //Instantiate world objects.
-		writeMapToWorld ();
+        writeMapToWorld ();
 
         //Rebuild pathfinding grid.
 		AstarPath.active.Scan ();

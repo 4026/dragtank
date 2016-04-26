@@ -9,7 +9,8 @@ namespace DragTank.MapGenerator
             Empty = '.',
             Wall = '#',
             Objective = '*',
-            Exit = '>'
+            Exit = '>',
+            Entrance = '<'
         }
 
         public readonly int Width;
