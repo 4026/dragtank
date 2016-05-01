@@ -16,6 +16,7 @@ public class ContinueGuideController : MonoBehaviour, IBeginDragHandler, IDragHa
     {
         m_gameManager = GameManager.Instance;
         m_gameManager.NotifyStateChange += OnStateChange;
+        m_gameManager.NotifyPlayerSpawn += OnPlayerSpawn;
 
         m_pathPlanner = transform.parent.GetComponent<PathPlanner>();
         m_seeker = GetComponent<Seeker>();
@@ -26,6 +27,7 @@ public class ContinueGuideController : MonoBehaviour, IBeginDragHandler, IDragHa
     void OnDestroy()
     {
         m_gameManager.NotifyStateChange -= OnStateChange;
+        m_gameManager.NotifyPlayerSpawn -= OnPlayerSpawn;
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -125,6 +127,11 @@ public class ContinueGuideController : MonoBehaviour, IBeginDragHandler, IDragHa
         {
             m_pathPlanner.AddWaypoint(waypoint);
         }
+    }
+
+    void OnPlayerSpawn(GameObject player)
+    {
+        m_player = player;
     }
 
     void OnStateChange(GameManager.GameState old_state, GameManager.GameState new_state)

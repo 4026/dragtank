@@ -3,10 +3,10 @@ using Pathfinding;
 
 public class PlayerController : Tank
 {
-	public PathPlanner pathPlanner;
 	public float NextWaypointDistance;
 
-	private GameManager gameManager;
+    private PathPlanner m_pathPlanner;
+    private GameManager m_gameManager;
 	private float trail_fade_time;
 	private Vector3[] currentPath;
 	private int currentWaypoint;
@@ -14,8 +14,11 @@ public class PlayerController : Tank
    
 	void Start ()
 	{
-        gameManager = GameManager.Instance;
-        gameManager.NotifyStateChange += OnStateChange;
+        m_pathPlanner = PathPlanner.Instance;
+
+        m_gameManager = GameManager.Instance;
+        m_gameManager.NotifyStateChange += OnStateChange;
+        m_gameManager.OnPlayerSpawn(gameObject);
 
         trail_fade_time = GetComponentInChildren<TrailRenderer> ().time;
 		seeker = GetComponent<Seeker> ();
@@ -23,19 +26,19 @@ public class PlayerController : Tank
 
 	void OnDestroy ()
 	{
-		gameManager.NotifyStateChange -= OnStateChange;
+		m_gameManager.NotifyStateChange -= OnStateChange;
 	}
 
 	void Update ()
 	{
-		if (gameManager.State != GameManager.GameState.Moving) {
+		if (m_gameManager.State != GameManager.GameState.Moving) {
 			return;
 		}
 
 		//If we've run out of path, stop.
 		if (currentWaypoint >= currentPath.Length) {
-			pathPlanner.ClearWaypoints ();
-			gameManager.SetGameState (GameManager.GameState.PlanCountdown);
+			m_pathPlanner.ClearWaypoints ();
+			m_gameManager.State = GameManager.GameState.PlanCountdown;
 			return;
 		}
 		
@@ -57,7 +60,7 @@ public class PlayerController : Tank
 		switch (new_state) {
 		    case GameManager.GameState.Moving:
 			    GetComponentInChildren<TrailRenderer> ().time = trail_fade_time; //Resume trail renderer fade-out
-			    currentPath = pathPlanner.Path;
+			    currentPath = m_pathPlanner.Path;
 			    currentWaypoint = 1;
 			    break;
 

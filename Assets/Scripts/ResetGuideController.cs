@@ -6,25 +6,35 @@ public class ResetGuideController : MonoBehaviour, IPointerClickHandler
 {
     private GameObject m_player;
     private PathPlanner m_pathPlanner;
-    private GameManager gameManager;
+    private GameManager m_gameManager;
 
     void Start ()
     {
-        gameManager = GameManager.Instance;
-        gameManager.NotifyStateChange += OnStateChange;
+        m_gameManager = GameManager.Instance;
+        m_gameManager.NotifyStateChange += OnStateChange;
+        m_gameManager.NotifyPlayerSpawn += OnPlayerSpawn;
 
         m_pathPlanner = transform.parent.GetComponent<PathPlanner>();
-        m_player = GameObject.Find("Player");
+
+        m_player = FindObjectOfType<PlayerController>().gameObject;
+        transform.position = m_player.transform.position;
     }
 
     void OnDestroy()
     {
-        gameManager.NotifyStateChange -= OnStateChange;
+        m_gameManager.NotifyStateChange -= OnStateChange;
+        m_gameManager.NotifyPlayerSpawn -= OnPlayerSpawn;
     }
-
+    
     public void OnPointerClick(PointerEventData eventData)
     {
         m_pathPlanner.ClearWaypoints();
+    }
+
+    void OnPlayerSpawn(GameObject player)
+    {
+        m_player = player;
+        transform.position = m_player.transform.position;
     }
 
     void OnStateChange(GameManager.GameState old_state, GameManager.GameState new_state)

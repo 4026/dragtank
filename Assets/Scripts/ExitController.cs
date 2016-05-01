@@ -47,7 +47,7 @@ public class ExitController : MonoBehaviour
             return;
         }
 
-        GameManager.Instance.SetGameState(GameManager.GameState.SceneEnding);
+        GameManager.Instance.State = GameManager.GameState.SceneEnding;
 
         Hashtable tween_options = iTween.Hash(
             "position", transform.position,

@@ -49,6 +49,9 @@ public class LevelGenerator : MonoBehaviour
         //Rebuild pathfinding grid.
 		AstarPath.active.Scan ();
 
+        //Start the game.
+        GameManager.Instance.State = GameManager.GameState.SceneStarting;
+
         //MY WORK HERE IS DONE I MUST RETURN TO MY PEOPLE
         Destroy(gameObject);
 	}

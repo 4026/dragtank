@@ -1,14 +1,21 @@
-﻿using UnityEngine;
+﻿using com.kleberswf.lib.core;
+using System;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour
+[Prefab("Prefabs/Singletons/Director")]
+public class GameManager : Singleton<GameManager>
 {
+    /// <summary>
+    /// Enum of possible game states.
+    /// </summary>
     public enum GameState
     {
+        SceneStarting,
+        PlanCountdown,
         Planning,
         MoveCountdown,
         Moving,
-        PlanCountdown,
         SceneEnding
     }
 
@@ -16,57 +23,59 @@ public class GameManager : MonoBehaviour
     public float PlanningCountdownDuration;
     public float SceneEndDuration;
 
-    public static GameManager Instance { get; private set; }
-
-    public GameState State { get; private set; }
-
-    public delegate void OnStateChange(GameState old_state, GameState new_state);
-    public event OnStateChange NotifyStateChange;
-        
-
-    //Awake is always called before any Start functions
-    void Awake()
-    {
-        //Enforce Singleton
-        if (Instance == null)
+    /// <summary>
+    /// The current state of the game.
+    /// </summary>
+    public GameState State {
+        get { return m_state;  }
+        set
         {
-            Instance = this;
+            if (NotifyStateChange != null)
+            {
+                try
+                {
+                    NotifyStateChange(this.State, value);
+                }
+                catch(Exception e)
+                {
+                    Debug.LogException(e);
+                }
+            }
+            m_state = value;
         }
-        else if (Instance != this)
-        {
-            Destroy(gameObject);
-        }
-
-        State = GameState.Planning;
     }
+    private GameState m_state = GameState.SceneStarting;
 
-    // Use this for initialization
-    void Start()
+    /// <summary>
+    /// An event that notifies subscribers of a change in game state.
+    /// </summary>
+    public event OnStateChange NotifyStateChange;
+    public delegate void OnStateChange(GameState old_state, GameState new_state);
+
+    /// <summary>
+    /// An event that notifies subscribers of the player object spawning.
+    /// </summary>
+    public event PlayerSpawnEvent NotifyPlayerSpawn;
+    public delegate void PlayerSpawnEvent(GameObject player);
+
+    public void OnPlayerSpawn(GameObject player)
     {
         //Watch the player so that we can end the scene if they die.
-        GameObject.Find("Player").GetComponent<Destructible>().OnDeath += OnPlayerDeath;
-    }
+        player.GetComponent<Destructible>().OnDeath += OnPlayerDeath;
 
-    void OnDestroy()
-    {
-        Instance = null;
+        if (NotifyPlayerSpawn != null)
+        {
+            NotifyPlayerSpawn(player);
+        }
     }
 
     public void OnPlayerDeath()
     {
-        SetGameState(GameState.SceneEnding);
+        State = GameState.SceneEnding;
     }
 
     public void OnSceneEndComplete()
     {
         SceneManager.LoadScene("Menu");
     }
-
-    public void SetGameState (GameState gameState)
-	{
-		if (NotifyStateChange != null) {
-			NotifyStateChange (this.State, gameState);
-		}
-		this.State = gameState;
-	}
 }

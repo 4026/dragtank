@@ -3,7 +3,6 @@ using System.Collections;
 
 public class CameraController : MonoBehaviour
 {
-	public GameObject Target;
     public float PlanningY;
     public float MovementY;
     public float SceneEndY;
@@ -23,7 +22,8 @@ public class CameraController : MonoBehaviour
 	public bool RotationFollowsTarget { get; set; }
 
 	private GameManager m_gameManager;
-	private Vector3 m_dragMomentum;
+    private GameObject m_playerTank;
+    private Vector3 m_dragMomentum;
 
 	void Awake ()
 	{
@@ -35,28 +35,30 @@ public class CameraController : MonoBehaviour
     {
         m_gameManager = GameManager.Instance;
         m_gameManager.NotifyStateChange += OnStateChange;
-        OnStateChange(m_gameManager.State, m_gameManager.State);
+        m_gameManager.NotifyPlayerSpawn += OnPlayerSpawn;
+        //OnStateChange(m_gameManager.State, m_gameManager.State);
     }
 	
 	void OnDestroy ()
 	{
 		m_gameManager.NotifyStateChange -= OnStateChange;
-	}
+        m_gameManager.NotifyPlayerSpawn -= OnPlayerSpawn;
+    }
 		
 	void Update ()
 	{
 		switch (m_gameManager.State) {
-		    case GameManager.GameState.Moving:
-                if (Target == null)
+            case GameManager.GameState.Moving:
+                if (m_playerTank == null)
                 {
                     break;
                 }
 
                 //Determine where camera should focus.
-			    transform.position = new Vector3 (Target.transform.position.x, transform.position.y, Target.transform.position.z);
+			    transform.position = new Vector3 (m_playerTank.transform.position.x, transform.position.y, m_playerTank.transform.position.z);
 
 			    if (RotationFollowsTarget) {
-				    iTween.RotateUpdate (gameObject, Target.transform.rotation.eulerAngles, 2.0f);
+				    iTween.RotateUpdate (gameObject, m_playerTank.transform.rotation.eulerAngles, 2.0f);
 			    }
 			    break;
 
@@ -71,15 +73,33 @@ public class CameraController : MonoBehaviour
 		}
 	}
 
-	void OnStateChange (GameManager.GameState old_state, GameManager.GameState new_state)
+    void OnPlayerSpawn(GameObject player)
+    {
+        m_playerTank = player.transform.FindChild("Tank").gameObject;
+        moveIntoPositionForState(m_gameManager.State);
+    }
+
+    void OnStateChange(GameManager.GameState old_state, GameManager.GameState new_state)
+    {
+        moveIntoPositionForState(new_state);
+    }
+
+
+    private void moveIntoPositionForState (GameManager.GameState state)
 	{
         //Animate camera into position for state.
         Vector3 targetPosition;
         Hashtable tween_options;
 
-        switch (new_state) {
-		    case GameManager.GameState.MoveCountdown:
-                targetPosition = new Vector3 (Target.transform.position.x, MovementY, Target.transform.position.z);
+        switch (state) {
+            case GameManager.GameState.SceneStarting:
+                transform.position = GameObject.FindObjectOfType<PlayerSpawner>().transform.position + (transform.position.y * Vector3.up);
+                break;
+
+            case GameManager.GameState.MoveCountdown:
+                if (m_playerTank == null) { return; }
+
+                targetPosition = new Vector3 (m_playerTank.transform.position.x, MovementY, m_playerTank.transform.position.z);
 
                 tween_options = iTween.Hash(
                     "position", targetPosition,
@@ -90,7 +110,7 @@ public class CameraController : MonoBehaviour
                 iTween.MoveTo(gameObject, tween_options);
 
                 tween_options = iTween.Hash(
-                    "rotation", Target.transform.rotation.eulerAngles,
+                    "rotation", m_playerTank.transform.rotation.eulerAngles,
                     "time", m_gameManager.MoveCountdownDuration,
                     "easetype", iTween.EaseType.easeInOutQuad
                 );
@@ -99,7 +119,8 @@ public class CameraController : MonoBehaviour
 			
 			
 		    case GameManager.GameState.PlanCountdown:
-                targetPosition = new Vector3(Target.transform.position.x, PlanningY, Target.transform.position.z);
+                if (m_playerTank == null) { return; }
+                targetPosition = new Vector3(m_playerTank.transform.position.x, PlanningY, m_playerTank.transform.position.z);
 
                 tween_options = iTween.Hash(
                     "position", targetPosition,
@@ -137,13 +158,13 @@ public class CameraController : MonoBehaviour
 	//Called when the camera is in position at the end of the move countdown.
 	public void MoveCountdownComplete()
 	{
-		m_gameManager.SetGameState (GameManager.GameState.Moving);
+		m_gameManager.State = GameManager.GameState.Moving;
 	}
 
     //Called when the camera is in position at the end of the planning countdown.
     public void PlanCountdownComplete()
     {
-        m_gameManager.SetGameState(GameManager.GameState.Planning);
+        m_gameManager.State = GameManager.GameState.Planning;
     }
 
     //Called when the camera has finished animating at the end of the scene.

@@ -15,7 +15,7 @@ public class GoButton : MonoBehaviour
 
         m_button = transform.FindChild("GoButton").gameObject;
 
-        m_pathPlanner = FindObjectOfType<PathPlanner>();
+        m_pathPlanner = PathPlanner.Instance;
         m_pathPlanner.OnPathChange += OnPathChange;
     }
 
@@ -27,7 +27,7 @@ public class GoButton : MonoBehaviour
 
     public void OnClick()
     {
-        m_gameManager.SetGameState(GameManager.GameState.MoveCountdown);
+        m_gameManager.State = GameManager.GameState.MoveCountdown;
     }
 
     private void OnGameStateChange(GameManager.GameState old_state, GameManager.GameState new_state)
