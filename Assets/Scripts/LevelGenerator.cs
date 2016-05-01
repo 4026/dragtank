@@ -40,7 +40,8 @@ public class LevelGenerator : MonoBehaviour
 
         //Fill map with sectors
         SectorAssembler sector_generator = new SectorAssembler();
-        sector_generator.FillMap(m_map);
+        int num_objectives_required = m_tilePrefabs[Map.Tile.Exit].GetComponent<ExitController>().ObjectivesRequired;
+        sector_generator.FillMap(m_map, num_objectives_required);
 
         //Instantiate world objects.
         writeMapToWorld ();
