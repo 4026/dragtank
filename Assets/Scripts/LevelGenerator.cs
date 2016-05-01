@@ -31,9 +31,6 @@ public class LevelGenerator : MonoBehaviour
         //Find the environment parent object in the scene.
         m_environment = FindObjectOfType<EnvironmentController>();
 
-        //Load sector data
-        SectorImporter sectors = new SectorImporter();
-
         //Initialise an empty map.
         m_map = new Map(
             Mathf.FloorToInt(m_environment.Bounds.width / TileSize), 
@@ -41,35 +38,18 @@ public class LevelGenerator : MonoBehaviour
             Map.Tile.Empty
         );
 
-        
-        //Choose sectors to make up the map.
-        Sector[,] sector_choices = new Sector[m_map.Width / Sector.Width, m_map.Height / Sector.Height];
-        for (int x = 0; x < sector_choices.GetLength(0); ++x)
-        {
-            for (int y = 0; y < sector_choices.GetLength(1); ++y)
-            {
-                sector_choices[x, y] = sectors.getRandomMiscSector();
-            }
-        }
-        sector_choices[0, 0] = sectors.getRandomExitSector();
-        sector_choices[sector_choices.GetLength(0) - 1, 0] = sectors.getRandomObjectiveSector();
-        sector_choices[0, sector_choices.GetLength(1) - 1] = sectors.getRandomObjectiveSector();
-        sector_choices[sector_choices.GetLength(0) - 1, sector_choices.GetLength(1) - 1] = sectors.getRandomObjectiveSector();
-
-        //Write sectors to map.
-        for (int x = 0; x < sector_choices.GetLength(0); ++x)
-        {
-            for (int y = 0; y < sector_choices.GetLength(1); ++y)
-            {
-                sector_choices[x, y].WriteToMap(m_map, new IntVector2(x * Sector.Width, y * Sector.Height));
-            }
-        }
+        //Fill map with sectors
+        SectorAssembler sector_generator = new SectorAssembler();
+        sector_generator.FillMap(m_map);
 
         //Instantiate world objects.
         writeMapToWorld ();
 
         //Rebuild pathfinding grid.
 		AstarPath.active.Scan ();
+
+        //MY WORK HERE IS DONE I MUST RETURN TO MY PEOPLE
+        Destroy(gameObject);
 	}
 
     /// <summary>

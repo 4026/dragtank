@@ -57,16 +57,42 @@ namespace DragTank.MapGenerator
 
         /// <summary>
         /// Write the sector data to the provided Map instance, using the provided co-ordinates on the map as the top left 
-        /// of the sector.
+        /// of the sector, rotated by the provided rotation.
         /// </summary>
-        public void WriteToMap(Map map, IntVector2 top_left)
+        public void WriteToMap(Map map, IntVector2 top_left, IntVector2.Rotation rotation)
         {
-            for (int y = 0; y < Height; ++y)
+            IntVector2 read_position = new IntVector2(0, 0);
+
+            for (read_position.y = 0; read_position.y < Height; ++read_position.y)
             {
-                for (int x = 0; x < Width; ++x)
+                for (read_position.x = 0; read_position.x < Width; ++read_position.x)
                 {
-                    map.SetTile(x + top_left.x, y + top_left.y, m_tiles[x,y]);
+                    Map.Tile tile = m_tiles[read_position.x, read_position.y];
+                    IntVector2 write_position = read_position.Rotated(rotation) + getRotatedWriteTranslation(rotation);
+                    map.SetTile(write_position.x + top_left.x, write_position.y + top_left.y, tile);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Get the translation to be applied to rotated sectors to ensure that they are written in the correct location.
+        /// </summary>
+        /// <param name="rotation"></param>
+        /// <returns></returns>
+        private static IntVector2 getRotatedWriteTranslation(IntVector2.Rotation rotation)
+        {
+            switch (rotation)
+            {
+                case IntVector2.Rotation.deg0:
+                    return new IntVector2(0, 0);
+                case IntVector2.Rotation.deg90:
+                    return new IntVector2(Width-1, 0);
+                case IntVector2.Rotation.deg180:
+                    return new IntVector2(Width-1, Height-1);
+                case IntVector2.Rotation.deg270:
+                    return new IntVector2(0, Height-1);
+                default:
+                    throw new ArgumentOutOfRangeException("Unrecognised IntVector2 rotation " + rotation);
             }
         }
     }
