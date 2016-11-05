@@ -43,7 +43,7 @@ public class BreakableObstacle : MonoBehaviour
     {
         //Rebuild pathfinding grid.
         GetComponent<Collider>().enabled = false;
-        AstarPath.active.Scan();
+        AstarPath.active.UpdateGraphs(new Bounds(transform.position, new Vector3(4.0f, 0, 4.0f)));
     }
 	
 	
