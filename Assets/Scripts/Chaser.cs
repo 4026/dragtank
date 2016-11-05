@@ -104,7 +104,11 @@ public class Chaser : MonoBehaviour
 		controller.Move (move_direction);
 
 		//Face sprite toward direction of travel
-		transform.rotation = Quaternion.LookRotation (move_direction, Vector3.up);
+        if (move_direction != Vector3.zero)
+        {
+            transform.rotation = Quaternion.LookRotation(move_direction, Vector3.up);
+        }
+		
         
 		//Check if we are close enough to the next waypoint
 		//If we are, proceed to follow the next waypoint

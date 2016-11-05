@@ -22,23 +22,27 @@ public class Tank : MonoBehaviour
 		float targetBearing = Vector3.Angle (transform.forward, targetDirection);
 
 		//Decide which way we want to face.
-		Quaternion lookRotation;
-		if (targetBearing <= ReverseWhenTargetBearingGreaterThan) {
+		Quaternion faceRotation;
+        if (targetDirection == Vector3.zero)
+        {
+            //If we're on top of the target, don't change facing at all.
+            faceRotation = transform.rotation;
+        } else if (targetBearing <= ReverseWhenTargetBearingGreaterThan) {
 			//If the target isn't directly behind us, we want to aim to face it.
-			lookRotation = Quaternion.LookRotation (targetDirection.normalized, Vector3.up);
+			faceRotation = Quaternion.LookRotation (targetDirection.normalized, Vector3.up);
 		} else {
 			//Otherwise, we want to face directly away from it, and reverse to it.
-			lookRotation = Quaternion.LookRotation (-targetDirection.normalized, Vector3.up);
+			faceRotation = Quaternion.LookRotation (-targetDirection.normalized, Vector3.up);
 		}
 
 		//Turn to face desired direction.
 		float maxPossibleTurnSpeed = Mathf.Clamp (lastTurnSpeed + (TurnAcceleration * Time.deltaTime), 0, TurnSpeed);
 		if (Mathf.Abs (targetBearing) < Time.deltaTime * maxPossibleTurnSpeed) {
-			transform.rotation = lookRotation;
+			transform.rotation = faceRotation;
 			lastTurnSpeed = 0;
 		} else {
 			//Rotate over time according to speed until we are in the required rotation.
-			transform.rotation = Quaternion.Slerp (transform.rotation, lookRotation, Time.deltaTime * (maxPossibleTurnSpeed / targetBearing));
+			transform.rotation = Quaternion.Slerp (transform.rotation, faceRotation, Time.deltaTime * (maxPossibleTurnSpeed / targetBearing));
 			lastTurnSpeed = maxPossibleTurnSpeed;
 		}
 
