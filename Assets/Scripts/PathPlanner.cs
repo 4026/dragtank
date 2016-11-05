@@ -76,7 +76,7 @@ public class PathPlanner : Singleton<PathPlanner>
 				rendered_path.SetPosition (path_i, dragged_path [i] + RenderOffset);
 				++path_i;
 			}
-			rendered_path.SetVertexCount (path_i);
+			rendered_path.numPositions = path_i;
             
 			++next_path_point;
 		}
@@ -85,7 +85,7 @@ public class PathPlanner : Singleton<PathPlanner>
 	public void ClearWaypoints ()
 	{
 		dragged_path.Clear ();
-		m_rendered_path.SetVertexCount (0);
+		m_rendered_path.numPositions = 0;
 
         m_resetGuide.SetActive(false);
         m_continueGuide.transform.position = m_player.transform.position;
@@ -94,7 +94,7 @@ public class PathPlanner : Singleton<PathPlanner>
 	public void AddWaypoint (Vector3 new_waypoint)
 	{
 		dragged_path.Add (new_waypoint);
-		m_rendered_path.SetVertexCount (dragged_path.Count);
+		m_rendered_path.numPositions = dragged_path.Count;
 		m_rendered_path.SetPosition (dragged_path.Count - 1, new_waypoint + RenderOffset);
 
         m_resetGuide.SetActive(true);
@@ -114,14 +114,14 @@ public class PathPlanner : Singleton<PathPlanner>
 
 	public void UpdateFinalRenderPoint (Vector3 point, bool isValid = true)
 	{
-		m_rendered_path.SetColors (path_color, isValid ? path_color : invalid_path_color);
-		m_rendered_path.SetVertexCount (dragged_path.Count + 1);
+		m_rendered_path.endColor = isValid ? path_color : invalid_path_color;
+		m_rendered_path.numPositions = dragged_path.Count + 1;
 		m_rendered_path.SetPosition (dragged_path.Count, point + RenderOffset);
 	}
 
 	public void ClearFinalRenderPoint ()
 	{
-		m_rendered_path.SetColors (path_color, path_color);
-		m_rendered_path.SetVertexCount (dragged_path.Count);
+		m_rendered_path.endColor = path_color;
+		m_rendered_path.numPositions = dragged_path.Count;
 	}
 }
