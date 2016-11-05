@@ -1,19 +1,22 @@
 ﻿using UnityEngine;
 
-public class Destructible : MonoBehaviour {
-
+/// <summary>
+/// An object that takes damage.
+/// </summary>
+public class Destructible : MonoBehaviour
+{
     /// <summary>
     /// The explosion to instantiate upon death.
     /// </summary>
     public GameObject Explosion;
 
     /// <summary>
-    /// The amount of health the enemy starts with.
+    /// The amount of health the object starts with.
     /// </summary>
     public int StartingHealth;
 
     /// <summary>
-    /// The enemy's current health.
+    /// The object's current health.
     /// </summary>
     public int Health { get; private set; }
 
@@ -26,6 +29,12 @@ public class Destructible : MonoBehaviour {
     /// Multiplier applied to all damage taken from the back of the collider.
     /// </summary>
     public float RearDamageMultiplier = 1f;
+
+    public delegate void DamageNotifier(int damage_taken, int remaining_health);
+    /// <summary>
+    /// Event that can be subscribed to to receive notification of this GameObject taking damage.
+    /// </summary>
+    public event DamageNotifier OnDamaged;
 
     public delegate void DeathNotifier();
     /// <summary>
@@ -57,6 +66,11 @@ public class Destructible : MonoBehaviour {
         }   
 
         Health -= damage;
+
+        if (OnDamaged != null)
+        {
+            OnDamaged(damage, Health);
+        }
 
         if (Health <= 0)
         {

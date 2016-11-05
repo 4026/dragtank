@@ -32,7 +32,7 @@ public class BulletController : MonoBehaviour
 		case GameManager.GameState.Moving:
 			GetComponent<TrailRenderer> ().time = trail_fade_time; //Resume trail renderer fade-out
 			break;
-		case GameManager.GameState.Planning:
+		case GameManager.GameState.PlanCountdown:
 			GetComponent<TrailRenderer> ().time = Mathf.Infinity; //Pause trail renderer fade-out
 			break;
 		}
