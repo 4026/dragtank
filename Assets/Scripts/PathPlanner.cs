@@ -40,12 +40,6 @@ public class PathPlanner : Singleton<PathPlanner>
         m_resetGuide = transform.FindChild("ResetGuide").gameObject;
     }
 
-	void OnDestroy ()
-	{
-		m_gameManager.NotifyStateChange -= OnStateChange;
-        m_gameManager.NotifyPlayerSpawn -= OnPlayerSpawn;
-    }
-
     void OnPlayerSpawn (GameObject player)
     {
         m_player = player;
