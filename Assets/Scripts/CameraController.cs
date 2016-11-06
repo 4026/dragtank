@@ -8,7 +8,7 @@ public class CameraController : MonoBehaviour
     public float SceneEndY;
     public float DragMomentumFriction;
 
-	private int momentumLocks = 0;
+    private int momentumLocks = 0;
 	public bool IsMomentumApplied { 
 		get { return momentumLocks == 0; } 
 		set { 
@@ -23,6 +23,7 @@ public class CameraController : MonoBehaviour
 
 	private GameManager m_gameManager;
     private GameObject m_playerTank;
+    private EnvironmentController m_environment;
     private Vector3 m_dragMomentum;
 
 	void Awake ()
@@ -36,7 +37,8 @@ public class CameraController : MonoBehaviour
         m_gameManager = GameManager.Instance;
         m_gameManager.NotifyStateChange += OnStateChange;
         m_gameManager.NotifyPlayerSpawn += OnPlayerSpawn;
-        //OnStateChange(m_gameManager.State, m_gameManager.State);
+
+        m_environment = FindObjectOfType<EnvironmentController>();
     }
 	
 	void OnDestroy ()
@@ -66,7 +68,7 @@ public class CameraController : MonoBehaviour
 			    if (m_dragMomentum.magnitude > 0) {
 				    m_dragMomentum = iTween.Vector3Update (m_dragMomentum, Vector3.zero, DragMomentumFriction);
 				    if (IsMomentumApplied) {
-					    transform.position += m_dragMomentum;
+                        Translate(m_dragMomentum, false);
 				    }
 			    }
 			    break;
@@ -178,11 +180,28 @@ public class CameraController : MonoBehaviour
         transform.position = new Vector3(transform.position.x, new_y, transform.position.z);
     }
 
-    public void Pan (Vector3 direction)
+    /// <summary>
+    /// Move the camera within its XZ bounds, optionally applying momentum.
+    /// </summary>
+    public void Translate (Vector3 direction, bool set_momentum = true)
 	{
-		transform.position += direction;
-		m_dragMomentum = direction;
-	}
+        Vector3 new_position = transform.position + direction;
+        if (m_environment.Bounds.Contains(new_position))
+        {
+            //If the translation keeps us within our bounds, great.
+            transform.position = new_position;
+        }
+        else
+        {
+            //If it would take us outside the bounds, put us at the edge of the bounds instead.
+            transform.position = m_environment.Bounds.ClosestPoint(new_position);
+        }
+
+        if (set_momentum)
+        {
+            m_dragMomentum = direction;
+        }
+    }
 
 	public Vector3 screenToGroundPoint (Vector2 screen_pos)
 	{

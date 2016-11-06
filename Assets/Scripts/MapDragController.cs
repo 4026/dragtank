@@ -69,7 +69,7 @@ public class MapDragController : MonoBehaviour, IBeginDragHandler, IDragHandler,
 			Vector3 newPinchCenter = Vector3.Lerp (touchZeroWorldPos, touchOneWorldPos, 0.5f);
 
 			// Pan the camera to compensate for any movement of the pinch center.
-			ControlledCamera.Pan (pinchWorldCenter - newPinchCenter);
+			ControlledCamera.Translate (pinchWorldCenter - newPinchCenter);
 		}
 	}
 	
@@ -97,7 +97,7 @@ public class MapDragController : MonoBehaviour, IBeginDragHandler, IDragHandler,
 		    case GameManager.GameState.Planning:
 			    Vector3 newDragWorldPos = ControlledCamera.screenToGroundPoint (eventData.position);
 			    Vector3 dragDirection = newDragWorldPos - dragOrigin;
-			    ControlledCamera.Pan (-dragDirection);
+			    ControlledCamera.Translate (-dragDirection);
 			    break;
 
 		    case GameManager.GameState.Moving:

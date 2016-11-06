@@ -33,8 +33,8 @@ public class LevelGenerator : MonoBehaviour
 
         //Initialise an empty map.
         m_map = new Map(
-            Mathf.FloorToInt(m_environment.Bounds.width / TileSize), 
-            Mathf.FloorToInt(m_environment.Bounds.height / TileSize), 
+            Mathf.FloorToInt(m_environment.Bounds.size.x / TileSize), 
+            Mathf.FloorToInt(m_environment.Bounds.size.z / TileSize), 
             Map.Tile.Empty
         );
 
@@ -67,9 +67,9 @@ public class LevelGenerator : MonoBehaviour
                 if (m_tilePrefabs.ContainsKey(tile))
                 {
                     Vector3 new_tile_pos = new Vector3(
-                        m_environment.Bounds.x + TileSize * (x + 0.5f), 
+                        m_environment.Bounds.min.x + TileSize * (x + 0.5f), 
                         0, 
-                        m_environment.Bounds.y + TileSize * (y + 0.5f)
+                        m_environment.Bounds.min.z + TileSize * (y + 0.5f)
                     );
                     GameObject new_tile = Instantiate(m_tilePrefabs[tile], new_tile_pos, m_tilePrefabs[tile].transform.rotation) as GameObject;
                     new_tile.transform.parent = m_environment.transform;

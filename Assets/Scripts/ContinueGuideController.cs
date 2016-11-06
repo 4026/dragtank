@@ -61,7 +61,7 @@ public class ContinueGuideController : MonoBehaviour, IBeginDragHandler, IDragHa
         RaycastHit hit_info;
         LayerMask wall_mask = LayerMask.GetMask("Walls");
 
-        if (!m_environment.PointIsInBounds(current_world_pos) ||  Physics.CheckSphere(current_world_pos, 0.75f, wall_mask))
+        if (!m_environment.Bounds.Contains(current_world_pos) ||  Physics.CheckSphere(current_world_pos, 0.75f, wall_mask))
         {
             //Endpoints inside walls (or outside the map) should turn red and not extend the path.
             m_pathPlanner.UpdateFinalRenderPoint(current_world_pos, false);

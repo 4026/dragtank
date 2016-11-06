@@ -99,7 +99,7 @@ public class EnemySpawnController : MonoBehaviour
 			Vector2 spawn_direction = Random.insideUnitCircle.normalized * spawnDistance;
 			spawn_pos = new Vector3 (spawn_direction.x, 0, spawn_direction.y) + m_player.transform.position;
 
-			if (m_environment.PointIsInBounds(spawn_pos) && !Physics.CheckSphere (spawn_pos, 1.0f, layer_mask)) {
+			if (m_environment.Bounds.Contains(spawn_pos) && !Physics.CheckSphere (spawn_pos, 1.0f, layer_mask)) {
 				//If there's nothing else near the spawn location, great. Return this location.
 				return spawn_pos;
 			}
