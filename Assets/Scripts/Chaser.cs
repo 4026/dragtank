@@ -14,16 +14,6 @@ public class Chaser : MonoBehaviour
 	public float recalculateDistance;
 
     /// <summary>
-    /// The splash radius of the explosion when this spider-bot self-destructs.
-    /// </summary>
-    public float SplashRadius;
-
-    /// <summary>
-    /// The damage this bot does when it self-destructs.
-    /// </summary>
-    public int Damage;
-
-    /// <summary>
     /// The explosion spawned by this bot when it self-destructs.
     /// </summary>
     public GameObject ExplosionPrefab;
@@ -127,8 +117,6 @@ public class Chaser : MonoBehaviour
             GameObject explosion = Instantiate(ExplosionPrefab, transform.position, Quaternion.Euler(90f, 0f, 0f)) as GameObject;
             ExplosionController explosion_data = explosion.GetComponent<ExplosionController>();
             explosion_data.CausedBy = gameObject;
-            explosion_data.Damage = Damage;
-            explosion_data.SplashRadius = SplashRadius;
 		}
 	}
 

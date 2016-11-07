@@ -55,8 +55,8 @@ public class Turret : MonoBehaviour
 		GameObject new_bullet = Instantiate (BulletPrefab, transform.position, Quaternion.identity) as GameObject;
         BulletController new_bullet_data = new_bullet.GetComponent<BulletController>();
 
-        new_bullet_data.target = target.transform.position;
-        new_bullet_data.speed = BulletSpeed;
+        new_bullet_data.Target = target.transform.position;
+        new_bullet_data.Speed = BulletSpeed;
         new_bullet_data.FiredBy = transform.parent.gameObject;
 
         //Animate recoil

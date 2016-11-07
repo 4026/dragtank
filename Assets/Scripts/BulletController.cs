@@ -3,15 +3,27 @@ using System.Collections;
 
 public class BulletController : MonoBehaviour
 {
-	public Vector3 target;
-	public float speed;
+	public Vector3 Target;
+	public float Speed;
+    /// <summary>
+    /// Damage caused by direct hit.
+    /// </summary>
+    public int Damage;
 	public GameObject ExplosionPrefab;
-	public float splashRadius;
-	public int damage;
+
+    /// <summary>
+    /// The player or NPC that fired this bullet
+    /// </summary>
+    [HideInInspector]
     public GameObject FiredBy;
 
 	private GameManager gameManager;
 	private float trail_fade_time;
+
+    /// <summary>
+    /// Whether this bullet is still able to move and kill things.
+    /// </summary>
+    private bool m_isAlive = true;
     
 	void Start ()
 	{
@@ -40,19 +52,19 @@ public class BulletController : MonoBehaviour
 
 	void FixedUpdate ()
 	{
-		if (gameManager.State != GameManager.GameState.Moving) {
+		if (gameManager.State != GameManager.GameState.Moving || !m_isAlive) {
 			return;
 		}
 
 		//Calculate the bullet's new position.
-		Vector3 to_target = target - transform.position;
+		Vector3 to_target = Target - transform.position;
 		Vector3 motion;
 		bool hitting_target = false;
-		if (to_target.magnitude < speed * Time.deltaTime) {
+		if (to_target.magnitude < Speed * Time.deltaTime) {
 			motion = to_target;
 			hitting_target = true;
 		} else {
-			motion = to_target.normalized * speed * Time.deltaTime;
+			motion = to_target.normalized * Speed * Time.deltaTime;
 		}
 
         //Move the bullet to the new position, calculating to see if we hit anything on the way.
@@ -60,9 +72,28 @@ public class BulletController : MonoBehaviour
         RaycastHit hit_info;
 		if (Physics.Raycast (transform.position, motion, out hit_info, motion.magnitude, layer_mask)) {
 			transform.position = hit_info.point;
-			detonate ();
+
+            Collider other = hit_info.collider;
+            if (other.GetComponent<Shield>() != null)
+            {
+                //Shield eats the bullet; no explosion.
+                other.GetComponent<Shield>().OnHit(transform.position);
+                m_isAlive = false;
+            }
+            else if (other.GetComponent<Destructible>() != null)
+            {
+                //Direct hit! Target takes extra damage.
+                other.GetComponent<Destructible>().TakeDamage(Damage, hit_info.point);
+                detonate();
+            }
+            else
+            {
+                //Just explode.
+                detonate();
+            }
+			
 		} else if (hitting_target) {
-			transform.position = target;
+			transform.position = Target;
 			detonate ();
 		} else {
 			transform.position += motion;
@@ -71,13 +102,13 @@ public class BulletController : MonoBehaviour
 
 	private void detonate ()
 	{
-		GameObject explosion = Instantiate (ExplosionPrefab, transform.position, Quaternion.Euler (90f, 0f, 0f)) as GameObject;
-        ExplosionController explosion_data = explosion.GetComponent<ExplosionController>();
-        
-        explosion_data.CausedBy = FiredBy;
-        explosion_data.Damage = damage;
-        explosion_data.SplashRadius = splashRadius;
+        if (ExplosionPrefab != null)
+        {
+            GameObject explosion = Instantiate(ExplosionPrefab, transform.position, Quaternion.Euler(90f, 0f, 0f)) as GameObject;
+            ExplosionController explosion_data = explosion.GetComponent<ExplosionController>();
+            explosion_data.CausedBy = FiredBy;
+        }
 
-        Destroy (this.gameObject);
+        m_isAlive = false;
 	}
 }
