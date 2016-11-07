@@ -20,7 +20,11 @@ namespace DragTank.MapGenerator
         {
             TextAsset file = Resources.Load<TextAsset>("sectors");
 
-            string[] sector_strings = file.text.Split(new String[] { "\r\n\r\n" }, 1000, StringSplitOptions.RemoveEmptyEntries);
+            string[] sector_strings = file.text.Split(
+                new String[] { "\r\n\r\n", Environment.NewLine + Environment.NewLine }, 
+                1000, 
+                StringSplitOptions.RemoveEmptyEntries
+            );
 
             for (int i = 0; i < sector_strings.Length; ++i)
             {

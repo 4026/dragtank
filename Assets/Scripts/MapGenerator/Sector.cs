@@ -24,7 +24,11 @@ namespace DragTank.MapGenerator
             ContainsObjective = false;
 
             //Iterate through each row of the data...
-            string[] tile_rows = tile_string.Split(new String[] { "\r\n" }, Height, StringSplitOptions.None);
+            string[] tile_rows = tile_string.Split(
+                new String[] { "\r\n", Environment.NewLine }, 
+                Height,
+                StringSplitOptions.None
+            );
 
             if (tile_rows.Length != Height)
             {
