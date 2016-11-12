@@ -3,10 +3,9 @@ using Pathfinding;
 using UnityEngine.EventSystems;
 using System;
 
-public class PlayerController : Tank, IPointerClickHandler
+public class PlayerController : Tank
 {
 	public float NextWaypointDistance;
-    public GameObject Shield;
 
     private PathPlanner m_pathPlanner;
     private GameManager m_gameManager;
@@ -73,13 +72,4 @@ public class PlayerController : Tank, IPointerClickHandler
 			    break;
 		}
 	}
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if (m_gameManager.State == GameManager.GameState.Moving)
-        {
-            GameObject shield = Instantiate(Shield, transform.position, Quaternion.identity);
-            shield.transform.parent = transform;
-        }
-    }
 }

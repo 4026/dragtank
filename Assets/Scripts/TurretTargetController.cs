@@ -17,19 +17,13 @@ public class TurretTargetController : MonoBehaviour, IPointerClickHandler, IBegi
         m_gameManager = GameManager.Instance;
         m_gameManager.NotifyPlayerSpawn += OnPlayerSpawn;
     }
-
-    void OnDestroy()
-    {
-        if (m_gameManager != null)
-        {
-            m_gameManager.NotifyPlayerSpawn -= OnPlayerSpawn;
-        }
-    }
     
     private void OnPlayerSpawn(GameObject player)
     {
         m_controlledTurret = player.GetComponentInChildren<TurretController>();
         player.GetComponent<Destructible>().OnDeath += OnPlayerDeath;
+
+        m_gameManager.NotifyPlayerSpawn -= OnPlayerSpawn;
     }
 
     private void OnPlayerDeath()

@@ -30,6 +30,11 @@ public class Destructible : MonoBehaviour
     /// </summary>
     public float RearDamageMultiplier = 1f;
 
+    /// <summary>
+    /// Whether the object is currently invulnerable or not.
+    /// </summary>
+    public bool Invulnerable { get; set; }
+
     public delegate void DamageNotifier(int damage_taken, int remaining_health);
     /// <summary>
     /// Event that can be subscribed to to receive notification of this GameObject taking damage.
