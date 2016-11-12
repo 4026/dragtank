@@ -9,47 +9,45 @@ public class TurretController : Turret
 	public GameObject player;
 	public GameObject targetPrefab;
 
-	private List<GameObject> targets = new List<GameObject> ();
-	private GameObject dragged_target;
-	private GameObject current_target;
-	private bool is_dragging = false;
-	private GameManager gameManager;
+	private List<GameObject> m_targets = new List<GameObject> ();
+	private GameObject m_draggedTarget;
+	private GameObject m_currentTarget;
+	private bool m_isDragging = false;
+	private GameManager m_gameManager;
 
 	void Start ()
 	{
-		gameManager = GameManager.Instance;
-
-		InputController.NotifyStartDrag += StartDrag;
-		InputController.NotifyDragUpdate += UpdateDrag;
-		InputController.NotifyStopDrag += EndDrag;
+		m_gameManager = GameManager.Instance;
+        m_gameManager.NotifyStateChange += OnStateChange;
 	}
 
-	void OnDestroy ()
-	{
-		InputController.NotifyStartDrag -= StartDrag;
-		InputController.NotifyDragUpdate -= UpdateDrag;
-		InputController.NotifyStopDrag -= EndDrag;
-	}
+    void OnDestroy()
+    {
+        if (m_gameManager != null)
+        {
+            m_gameManager.NotifyStateChange -= OnStateChange;
+        }
+    }
 
-	public override void Update ()
+    public override void Update ()
 	{
         base.Update();
 
-        if (gameManager.State != GameManager.GameState.Moving) {
+        if (m_gameManager.State != GameManager.GameState.Moving) {
 			return;
 		}
 
 		if (!animating) {
 			//If the turret isn't still shaking from the last shot, turn it.
 
-			if (targets.Count > 0 || dragged_target != null) {
+			if (m_targets.Count > 0 || m_draggedTarget != null) {
 				//If we have an active target, rotate to face it.
-				GameObject target = (targets.Count > 0) ? targets.First () : dragged_target;
+				GameObject target = (m_targets.Count > 0) ? m_targets.First () : m_draggedTarget;
                 
-				if (turnToward (target.transform.position) && CanFire && targets.Count > 0) {
+				if (turnToward (target.transform.position) && CanFire && m_targets.Count > 0) {
 					fireAt (target);
 					//Remove target indicator
-					targets.Remove (target);
+					m_targets.Remove (target);
 					GameObject.Destroy (target);
 				}
 			} else {
@@ -59,43 +57,67 @@ public class TurretController : Turret
 		}
 	}
 
-	void StartDrag (Vector2 screen_pos)
+    private void OnStateChange(GameManager.GameState old_state, GameManager.GameState new_state)
+    {
+        //Clear up any unplaced targets at the end of the move phase.
+        if (old_state == GameManager.GameState.Moving && m_isDragging)
+        {
+            m_isDragging = false;
+            Destroy(m_currentTarget);
+        }
+    }
+
+    public void PlaceTarget(Vector2 screen_pos)
+    {
+        if (m_gameManager.State != GameManager.GameState.Moving || m_isDragging)
+        {
+            return;
+        }
+
+        Vector3 world_pos = Camera.main.ScreenToWorldPoint(new Vector3(screen_pos.x, screen_pos.y, Camera.main.transform.position.y));
+        m_targets.Add(Instantiate(targetPrefab, world_pos, Quaternion.AngleAxis(90, Vector3.right)));
+    }
+
+	public void StartTargetDrag (Vector2 screen_pos)
 	{
-		if (gameManager.State != GameManager.GameState.Moving) {
+		if (m_gameManager.State != GameManager.GameState.Moving)
+        {
 			return;
 		}
 
-		is_dragging = true;
+		m_isDragging = true;
 
 		Vector3 world_pos = Camera.main.ScreenToWorldPoint (new Vector3 (screen_pos.x, screen_pos.y, Camera.main.transform.position.y));
-		current_target = Instantiate (targetPrefab, world_pos, Quaternion.AngleAxis (90, Vector3.right)) as GameObject;
+		m_currentTarget = Instantiate (targetPrefab, world_pos, Quaternion.AngleAxis (90, Vector3.right)) as GameObject;
         
-		dragged_target = current_target;
+		m_draggedTarget = m_currentTarget;
 	}
-    
-	void UpdateDrag (Vector2 screen_pos)
+
+    public void UpdateTargetDrag (Vector2 screen_pos)
 	{
-		if (gameManager.State != GameManager.GameState.Moving || !is_dragging) {
+		if (m_gameManager.State != GameManager.GameState.Moving || !m_isDragging)
+        {
 			return;
 		}
 
 		Vector3 world_pos = Camera.main.ScreenToWorldPoint (new Vector3 (screen_pos.x, screen_pos.y, Camera.main.transform.position.y));
-		current_target.transform.position = world_pos;
+		m_currentTarget.transform.position = world_pos;
 	}
-    
-	void EndDrag (Vector2 screen_pos)
+
+    public void EndTargetDrag (Vector2 screen_pos)
 	{
-		if (gameManager.State != GameManager.GameState.Moving || !is_dragging) {
+		if (m_gameManager.State != GameManager.GameState.Moving || !m_isDragging)
+        {
 			return;
 		}
 
-		is_dragging = false;
+		m_isDragging = false;
 
 		Vector3 world_pos = Camera.main.ScreenToWorldPoint (new Vector3 (screen_pos.x, screen_pos.y, Camera.main.transform.position.y));
-		current_target.transform.position = world_pos;
+		m_currentTarget.transform.position = world_pos;
         
-		dragged_target = null;
-		targets.Add (current_target);
+		m_draggedTarget = null;
+		m_targets.Add (m_currentTarget);
 	}
 
 }
