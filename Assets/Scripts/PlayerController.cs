@@ -12,7 +12,6 @@ public class PlayerController : Tank
 	private float trail_fade_time;
 	private Vector3[] currentPath;
 	private int currentWaypoint;
-	private Seeker seeker;
    
 	void Start ()
 	{
@@ -23,7 +22,6 @@ public class PlayerController : Tank
         m_gameManager.OnPlayerSpawn(gameObject);
 
         trail_fade_time = GetComponentInChildren<TrailRenderer> ().time;
-		seeker = GetComponent<Seeker> ();
 	}
 
 	void OnDestroy ()

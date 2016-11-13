@@ -18,7 +18,6 @@ public class MapDragController : MonoBehaviour, IBeginDragHandler, IDragHandler,
 	private float startingPinchScreenDistance;
 	private Vector3 pinchWorldCenter;
 
-	private float cameraSizeOrigin;
 	private Vector3 cameraPosOrigin;
 
 	void Start ()
@@ -48,7 +47,6 @@ public class MapDragController : MonoBehaviour, IBeginDragHandler, IDragHandler,
 				//Find the starting center of the pinch in world co-ordinates. We're aiming to arrange the camera to that this remains the centre of the pinch, regardless of how the touches move.
 				pinchWorldCenter = Vector3.Lerp (ControlledCamera.screenToGroundPoint (touchZero.position), ControlledCamera.screenToGroundPoint (touchOne.position), 0.5f);
 
-				cameraSizeOrigin = Camera.main.orthographicSize;
 				cameraPosOrigin = Camera.main.transform.position;
 			}
 
