@@ -37,6 +37,8 @@ public class ExitController : MonoBehaviour
         {
             m_particles.Play();
         }
+
+        StatsTracker.Instance.CurrentGame.Increment(GameStats.IntStatistic.CubesCollected);
     }
 	
 	public void OnTriggerEnter(Collider other)
@@ -47,6 +49,7 @@ public class ExitController : MonoBehaviour
             return;
         }
 
+        StatsTracker.Instance.CurrentGame.SetFlag(GameStats.Flag.ExitReached);
         GameManager.Instance.State = GameManager.GameState.SceneEnding;
 
         Hashtable tween_options = iTween.Hash(

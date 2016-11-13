@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// An object that takes damage.
@@ -46,7 +47,11 @@ public class Destructible : MonoBehaviour
     /// Event that can be subscribed to to receive notification of this GameObject's death.
     /// </summary>
     public event DeathNotifier OnDeath;
-    
+
+    /// <summary>
+    /// List of stats that should be incremented when this object dies.
+    /// </summary>
+    public List<GameStats.IntStatistic> IncrementStatsOnDeath;
 
     void Start ()
     {
@@ -85,9 +90,16 @@ public class Destructible : MonoBehaviour
 
     private void die()
     {
+        //Report death to subscribers.
         if (OnDeath != null)
         {
             OnDeath();
+        }
+
+        //Increment any relevant stats.
+        foreach(GameStats.IntStatistic stat in IncrementStatsOnDeath)
+        {
+            StatsTracker.Instance.CurrentGame.Increment(stat);
         }
 
         Instantiate(Explosion, transform.position, Quaternion.identity);

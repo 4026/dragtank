@@ -79,12 +79,23 @@ public class BulletController : MonoBehaviour
                 //Shield eats the bullet; no explosion.
                 other.GetComponent<Shield>().OnHit(transform.position);
                 m_isAlive = false;
+
+                //This still counts as a hit, though...
+                if (FiredBy.tag == "Player")
+                {
+                    StatsTracker.Instance.CurrentGame.Increment(GameStats.IntStatistic.ShotsHit);
+                }
             }
             else if (other.GetComponent<Destructible>() != null)
             {
                 //Direct hit! Target takes extra damage.
                 other.GetComponent<Destructible>().TakeDamage(Damage, hit_info.point);
                 detonate();
+
+                if (FiredBy != null && FiredBy.tag == "Player")
+                {
+                    StatsTracker.Instance.CurrentGame.Increment(GameStats.IntStatistic.ShotsHit);
+                }
             }
             else
             {

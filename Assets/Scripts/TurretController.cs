@@ -46,6 +46,9 @@ public class TurretController : Turret
                 
 				if (turnToward (target.transform.position) && CanFire && m_targets.Count > 0) {
 					fireAt (target);
+
+                    StatsTracker.Instance.CurrentGame.Increment(GameStats.IntStatistic.ShotsFired);
+
 					//Remove target indicator
 					m_targets.Remove (target);
 					GameObject.Destroy (target);
