@@ -77,7 +77,7 @@ public class CameraController : MonoBehaviour
 
     void OnPlayerSpawn(GameObject player)
     {
-        m_playerTank = player.transform.FindChild("Tank").gameObject;
+        m_playerTank = player.transform.Find("Tank").gameObject;
         moveIntoPositionForState(m_gameManager.State);
     }
 

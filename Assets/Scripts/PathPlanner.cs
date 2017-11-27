@@ -36,8 +36,8 @@ public class PathPlanner : Singleton<PathPlanner>
         m_gameManager.NotifyPlayerSpawn += OnPlayerSpawn;
 
         m_rendered_path = GetComponent<LineRenderer> ();
-        m_continueGuide = transform.FindChild("ContinueGuide").gameObject;
-        m_resetGuide = transform.FindChild("ResetGuide").gameObject;
+        m_continueGuide = transform.Find("ContinueGuide").gameObject;
+        m_resetGuide = transform.Find("ResetGuide").gameObject;
     }
 
     void OnPlayerSpawn (GameObject player)

@@ -13,7 +13,7 @@ public class GoButton : MonoBehaviour
         m_gameManager = GameManager.Instance;
         m_gameManager.NotifyStateChange += OnGameStateChange;
 
-        m_button = transform.FindChild("GoButton").gameObject;
+        m_button = transform.Find("GoButton").gameObject;
 
         m_pathPlanner = PathPlanner.Instance;
         m_pathPlanner.OnPathChange += OnPathChange;

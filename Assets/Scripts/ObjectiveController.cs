@@ -17,9 +17,9 @@ public class ObjectiveController : MonoBehaviour
 
     void Start()
     {
-        m_cube = transform.FindChild("Cube");
-        m_trail = transform.FindChild("Trail").GetComponent<ParticleSystem>();
-        m_explosion = transform.FindChild("Explosion").GetComponent<ParticleSystem>();
+        m_cube = transform.Find("Cube");
+        m_trail = transform.Find("Trail").GetComponent<ParticleSystem>();
+        m_explosion = transform.Find("Explosion").GetComponent<ParticleSystem>();
 
         m_exit = GameObject.FindGameObjectWithTag("Exit");
     }

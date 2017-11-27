@@ -25,7 +25,7 @@ public class ExitController : MonoBehaviour
 	void Start ()
     {
         ObjectivesCompleted = 0;
-        m_particles = transform.FindChild("Particle System").GetComponent<ParticleSystem>();
+        m_particles = transform.Find("Particle System").GetComponent<ParticleSystem>();
     }
 
     public void NewObjectiveComplete()
